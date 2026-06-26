@@ -527,7 +527,7 @@ class OgrenciController extends Controller
         }
 
         $file = $request->file('file');
-        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'txt'];
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'txt', 'mp3', 'wav', 'ogg', 'webm', 'mpga'];
         $ext = strtolower($file->getClientOriginalExtension());
         
         if (!in_array($ext, $allowed)) {

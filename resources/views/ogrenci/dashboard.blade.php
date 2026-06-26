@@ -533,6 +533,17 @@
                         <button type="button" id="clearFile" class="text-red-500 text-sm hidden" onclick="clearAttachment()">✕ Temizle</button>
                     </div>
                 </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-2">🎤 Sesli Mesaj (İsteğe bağlı)</label>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <button type="button" id="voiceBtn" class="emoji-btn bg-green-100 hover:bg-green-200 text-2xl" title="Ses kaydet">🎤</button>
+                        <span id="voiceStatus" class="text-sm text-gray-500">Kayıt yok</span>
+                        <span id="voiceTimer" class="text-sm font-bold text-red-500 hidden">00:00</span>
+                        <button type="button" id="voicePlayBtn" class="emoji-btn bg-blue-100 hover:bg-blue-200 text-xl hidden" title="Dinle">▶️</button>
+                        <button type="button" id="voiceDeleteBtn" class="text-red-500 text-sm hidden" onclick="clearVoice()">✕ Sil</button>
+                        <audio id="voicePreview" class="hidden" controls></audio>
+                    </div>
+                </div>
                 <button type="submit" class="btn-kid btn-purple w-full">
                     ✈️ Gönder
                 </button>
@@ -995,7 +1006,15 @@
                 dom.modalBody.innerHTML = '<p class="text-gray-400 italic">Bu mail henüz boş veya içeriği yüklenemedi.</p>' + attachmentHtml;
             } else {
                 emptyIcon.style.display = 'none';
-                dom.modalBody.innerHTML = mailBody.replace(/\n/g, '<br>') + attachmentHtml;
+                // URL'leri tıklanabilir yap, ses kayıtlarını oynatıcı göster
+                let bodyHtml = mailBody.replace(/\n/g, '<br>');
+                bodyHtml = bodyHtml.replace(/(https?:\/\/[^\s<]+)/g, function(url) {
+                    if (url.includes('sesli-mesaj') || url.endsWith('.webm')) {
+                        return '<div class="mt-2 p-3 bg-green-50 rounded-xl border-2 border-green-200 flex items-center gap-3">🎤 <span class="flex-1 font-medium text-sm">Sesli Mesaj</span> <audio src="' + url + '" controls class="h-10"></audio> <a href="' + url + '" target="_blank" class="text-blue-600 underline text-sm">⬇</a></div>';
+                    }
+                    return '<a href="' + url + '" target="_blank" class="text-blue-600 underline">' + url + '</a>';
+                });
+                dom.modalBody.innerHTML = bodyHtml + attachmentHtml;
             }
             
             dom.modal.classList.add('show');
@@ -1059,6 +1078,14 @@
                 }
             }
 
+            let finalBody = body;
+            if (attachmentUrl) {
+                finalBody += '\n\n📎 Ek: ' + attachmentUrl;
+            }
+            if (voiceUploadedUrl) {
+                finalBody += '\n\n🎤 Sesli Mesaj: ' + voiceUploadedUrl;
+            }
+
             try {
                 const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 const res = await fetch('/ogrenci/send-mail', {
@@ -1070,7 +1097,7 @@
                     body: JSON.stringify({ 
                         to, 
                         subject, 
-                        body: attachmentUrl ? body + '\n\n📎 Ek: ' + attachmentUrl : body 
+                        body: finalBody
                     })
                 });
 
@@ -1082,13 +1109,13 @@
                     console.log('Adding to sent list, currentMails.sent length:', currentMails.sent.length);
                     
                     // Add to sent list locally
-                    const finalBody = attachmentUrl ? dom.messageInput.value + '\n\n📎 Ek: ' + attachmentUrl : dom.messageInput.value;
                     const newMail = {
                         to: dom.toInput.value,
                         subject: dom.subjectInput.value,
                         date: new Date().toISOString(),
                         body: finalBody,
-                        attachment: attachmentUrl || null
+                        attachment: attachmentUrl || null,
+                        voice: voiceUploadedUrl || null
                     };
                     currentMails.sent.unshift(newMail);
                     console.log('After unshift, sent length:', currentMails.sent.length);
@@ -1111,6 +1138,7 @@
                     
                     dom.mailForm.reset();
                     clearAttachment();
+                    clearVoice();
                     document.querySelector('[data-tab="sent"]').click();
                 } else {
                     showStatus('⚠️ ' + (data.message || 'Hata oluştu'), 'red');
@@ -1524,6 +1552,135 @@
         document.querySelector('[data-tab="odevler"]').addEventListener('click', function() {
             setTimeout(() => loadOdevler(), 300);
         });
+
+        // Ses kaydı
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let audioBlob = null;
+        let audioUrl = null;
+        let recordingTimer = null;
+        let recordingSeconds = 0;
+        let voiceUploadedUrl = null;
+
+        const voiceBtn = document.getElementById('voiceBtn');
+        const voiceStatus = document.getElementById('voiceStatus');
+        const voiceTimer = document.getElementById('voiceTimer');
+        const voicePlayBtn = document.getElementById('voicePlayBtn');
+        const voiceDeleteBtn = document.getElementById('voiceDeleteBtn');
+        const voicePreview = document.getElementById('voicePreview');
+
+        voiceBtn.addEventListener('click', async function() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+                mediaRecorder.onstop = async () => {
+                    stream.getTracks().forEach(t => t.stop());
+                    clearInterval(recordingTimer);
+                    voiceTimer.classList.add('hidden');
+
+                    audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    audioUrl = URL.createObjectURL(audioBlob);
+
+                    voicePreview.src = audioUrl;
+                    voicePlayBtn.classList.remove('hidden');
+                    voiceDeleteBtn.classList.remove('hidden');
+                    voiceBtn.textContent = '🎤';
+                    voiceBtn.style.background = '#d1fae5';
+                    voiceStatus.textContent = '✅ Kaydedildi (' + formatDuration(recordingSeconds) + ')';
+
+                    // Otomatik yükle
+                    await uploadVoice(audioBlob);
+                };
+
+                mediaRecorder.start();
+                recordingSeconds = 0;
+                voiceTimer.textContent = '00:00';
+                voiceTimer.classList.remove('hidden');
+                voiceBtn.textContent = '⏹';
+                voiceBtn.style.background = '#fecaca';
+                voiceStatus.textContent = '🔴 Kaydediyor...';
+
+                recordingTimer = setInterval(() => {
+                    recordingSeconds++;
+                    const m = String(Math.floor(recordingSeconds / 60)).padStart(2, '0');
+                    const s = String(recordingSeconds % 60).padStart(2, '0');
+                    voiceTimer.textContent = m + ':' + s;
+                }, 1000);
+
+            } catch (err) {
+                alert('Mikrofona erişilemedi. Lütfen mikrofon iznini kontrol et 🐧');
+                console.error('Mic error:', err);
+            }
+        });
+
+        voicePlayBtn.addEventListener('click', function() {
+            if (voicePreview.paused) {
+                voicePreview.play();
+                voicePlayBtn.textContent = '⏸';
+            } else {
+                voicePreview.pause();
+                voicePlayBtn.textContent = '▶️';
+            }
+        });
+
+        voicePreview.addEventListener('ended', () => {
+            voicePlayBtn.textContent = '▶️';
+        });
+
+        async function uploadVoice(blob) {
+            voiceStatus.textContent = '📤 Ses yükleniyor...';
+            const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const formData = new FormData();
+            formData.append('file', blob, 'sesli-mesaj.webm');
+
+            try {
+                const res = await fetch('/ogrenci/upload-attachment', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrf },
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    voiceUploadedUrl = data.url;
+                    voiceStatus.textContent = '✅ Ses hazır (' + formatDuration(recordingSeconds) + ')';
+                } else {
+                    voiceStatus.textContent = '⚠️ Ses yüklenemedi';
+                }
+            } catch (err) {
+                voiceStatus.textContent = '⚠️ Yükleme hatası';
+            }
+        }
+
+        function clearVoice() {
+            if (audioUrl) URL.revokeObjectURL(audioUrl);
+            audioBlob = null;
+            audioUrl = null;
+            audioChunks = [];
+            voiceUploadedUrl = null;
+            recordingSeconds = 0;
+            voiceStatus.textContent = 'Kayıt yok';
+            voiceTimer.classList.add('hidden');
+            voicePlayBtn.classList.add('hidden');
+            voiceDeleteBtn.classList.add('hidden');
+            voicePreview.src = '';
+            voiceBtn.textContent = '🎤';
+            voiceBtn.style.background = '';
+        }
+
+        function formatDuration(sec) {
+            const m = String(Math.floor(sec / 60)).padStart(2, '0');
+            const s = String(sec % 60).padStart(2, '0');
+            return m + ':' + s;
+        }
 
         // Dosya ekleme
         let selectedFile = null;
