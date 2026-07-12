@@ -27,17 +27,30 @@ class CreateSinif extends CreateRecord
     protected function afterCreate(): void
     {
         $user = auth()->user();
+        $sinif = $this->record;
         $ogretmenler = $this->data['ogretmenler'] ?? [];
+
+        if ($user->hasAnyRole(['admin', 'yonetici']) && $sinif->okul) {
+            $okul = $sinif->okul;
+            if (!$okul->yonetici_user_id) {
+                $okul->yonetici_user_id = $user->id;
+                $okul->save();
+            }
+            if (!$user->okul_id) {
+                $user->okul_id = $okul->id;
+                $user->save();
+            }
+        }
 
         if ($user->hasRole('ogretmen')) {
             $ogretmenler[] = $user->id;
         }
 
         if (!empty($ogretmenler) && is_array($ogretmenler)) {
-            $this->record->ogretmenler()->sync(array_unique($ogretmenler));
+            $sinif->ogretmenler()->sync(array_unique($ogretmenler));
         }
 
-        ActivityLogger::created($this->record, 'Sınıf oluşturuldu: ' . $this->record->ad);
+        ActivityLogger::created($sinif, 'Sınıf oluşturuldu: ' . $sinif->ad);
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array

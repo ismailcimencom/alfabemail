@@ -64,7 +64,8 @@ class SinifResource extends Resource
         }
 
         if ($user?->hasRole('yonetici')) {
-            return $query->whereHas('okul', fn($q) => $q->where('yonetici_user_id', $user->id));
+            return $query->whereHas('okul', fn($q) => $q->where('yonetici_user_id', $user->id)
+                ->when($user->okul_id, fn($q) => $q->orWhere('id', $user->okul_id)));
         }
 
         return $query;
