@@ -87,6 +87,44 @@ class ListOgrencis extends ListRecords
 
                     $this->confirmImport();
                 }),
+            Action::make('yaka_karti_sinif')
+                ->label('Sınıf Yaka Kartları')
+                ->icon('heroicon-o-printer')
+                ->color('warning')
+                ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false)
+                ->modalHeading('Sınıf Seç')
+                ->modalDescription('Yaka kartı basmak istediğiniz sınıfı seçin.')
+                ->modalSubmitActionLabel('Yaka Kartlarını Göster')
+                ->form([
+                    Select::make('sinif_id')
+                        ->label('Sınıf')
+                        ->options(function () {
+                            $user = auth()->user();
+                            if ($user?->hasRole('ogretmen')) {
+                                return Sinif::whereHas('ogretmenler', fn($q) => $q->where('users.id', $user->id))
+                                    ->pluck('ad', 'id');
+                            }
+                            if ($user?->hasRole('yonetici')) {
+                                return Sinif::whereHas('okul', fn($q) => $q->where('yonetici_user_id', $user->id)
+                                    ->orWhere('id', $user->okul_id))
+                                    ->pluck('ad', 'id');
+                            }
+                            return Sinif::pluck('ad', 'id');
+                        })
+                        ->searchable()
+                        ->required(),
+                ])
+                ->action(function (array $data) {
+                    $ids = Ogrenci::where('sinif_id', $data['sinif_id'])->pluck('id')->implode(',');
+                    if (empty($ids)) {
+                        Notification::make()
+                            ->title('Bu sınıfta öğrenci bulunamadı.')
+                            ->warning()
+                            ->send();
+                        return;
+                    }
+                    return redirect()->route('ogrenci.yaka-karti.bulk', ['ids' => $ids]);
+                }),
             Action::make('sync_mailcow')
                 ->label('Mailcow\'u Senkronize Et')
                 ->icon('heroicon-o-arrow-path')
