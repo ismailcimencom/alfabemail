@@ -30,14 +30,21 @@ class CreateSinif extends CreateRecord
         $sinif = $this->record;
         $ogretmenler = $this->data['ogretmenler'] ?? [];
 
-        if ($user->hasAnyRole(['admin', 'yonetici']) && $sinif->okul) {
-            $okul = $sinif->okul;
-            if (!$okul->yonetici_user_id) {
-                $okul->yonetici_user_id = $user->id;
-                $okul->save();
+        if ($sinif->okul) {
+            if ($user->hasAnyRole(['admin', 'yonetici'])) {
+                $okul = $sinif->okul;
+                if (!$okul->yonetici_user_id) {
+                    $okul->yonetici_user_id = $user->id;
+                    $okul->save();
+                }
+                if (!$user->okul_id) {
+                    $user->okul_id = $okul->id;
+                    $user->save();
+                }
             }
-            if (!$user->okul_id) {
-                $user->okul_id = $okul->id;
+
+            if ($user->hasRole('ogretmen') && !$user->okul_id) {
+                $user->okul_id = $sinif->okul->id;
                 $user->save();
             }
         }
