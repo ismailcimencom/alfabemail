@@ -1,6 +1,6 @@
 # Alfabe Mail — Çocuklar için Güvenli E-posta Sistemi
 
-> **v1.5** — Kapsül Serix Teknoloji Platformu
+> **v1.7** — Kapsül Serix Teknoloji Platformu
 
 Çocukların güvenli, reklamsız, kötü söz içermeyen ve kontrollü bir ortamda e-posta kullanmasını sağlayan eğitim odaklı mail platformu.
 
@@ -37,7 +37,7 @@
 - [x] UTF-8 Türkçe destek
 - [x] Çocuk dostu UI (penguen maskot 🐧 + baykuş maskot 🦉)
 - [x] Yaka kartı oluşturma (karekodlu)
-- [x] Toplu yaka kartı yazdırma
+- [x] Toplu yaka kartı yazdırma (sınıf seçerek veya tablodan seçerek)
 - [x] Dosya ekleme (attachment upload)
 - [x] E-posta istatistikleri
 - [x] Ödev/Teslim sistemi (öğretmen atar, öğrenci tamamlar)
@@ -49,14 +49,14 @@
 - [x] Role göre özelleşmiş dashboard
 - [x] **Öğrenci Yönetimi**: CRUD, toplu yapıştırma (modal), Mailcow mailbox oluşturma, toplu yaka kartı
 - [x] **Öğretmen Yönetimi**: CRUD, sınıf atama, inline sınıf oluşturma
-- [x] **Sınıf Yönetimi**: CRUD, pivot tabanlı filtreleme
+- [x] **Sınıf Yönetimi**: CRUD, okul bazlı filtreleme, öğretmen otomatik atama
 - [x] **Ödev Yönetimi**: CRUD, sınıfa/öğrenciye ödev atama, teslim tarihi, tamamlanma takibi
 - [x] **Okul Yönetimi** (admin): CRUD
 
 ### Öğretmen Paneli (`/ogretmen`)
 - [x] Role göre özelleşmiş dashboard
 - [x] **Öğrenci Yönetimi**: CRUD, toplu yapıştırma (modal), Mailcow mailbox oluşturma, toplu yaka kartı
-- [x] **Sınıf Yönetimi**: CRUD, pivot tabanlı filtreleme
+- [x] **Sınıf Yönetimi**: CRUD, okul bazlı filtreleme, öğretmen pivot ataması
 - [x] **Ödev Yönetimi**: CRUD, sınıfa/öğrenciye ödev atama, teslim tarihi, tamamlanma takibi
 
 ### Veli Paneli
@@ -551,6 +551,14 @@ public static function getPages(): array
 ---
 
 ## 📋 Değişiklik Geçmişi
+
+### v1.7 — 2026-07-12
+- **Sınıf seçerek toplu yaka kartı** aksiyonu eklendi (header butonu, sınıf seçme modalı)
+- Yaka kartında **şifre alanı** gösterilmeye başlandı
+- **Toplu öğrenci ekleme** bildirim aksiyonu hatası giderildi (`mountAction` bulunamıyordu)
+- **Öğretmen sınıf listesi** düzeltildi: `okul_id` null ise pivot atamalarına fallback yapılıyor
+- **Yönetici okul bağlantısı** null olduğunda tüm kaynaklar (sınıf, öğrenci, ödev, program) görüntüleme hatası giderildi
+- Yönetici sınıf oluşturunca okul bağlantısı otomatik kuruluyor
 
 ### v1.6 — 2026-07-12
 - **403 hata sayfası** popup tasarımıyla yenilendi ("Buraya girmeye yetkiniz yok!" + Çıkış Yap butonu)
