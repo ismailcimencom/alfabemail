@@ -11,7 +11,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
-use Filament\Actions\Action as NotificationAction;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -86,22 +85,7 @@ class ListOgrencis extends ListRecords
                         'rows' => $validRows,
                     ]]);
 
-                    $errorMsg = !empty($errors)
-                        ? '<br><br><strong>Uyarılar:</strong><br>' . implode('<br>', array_slice($errors, 0, 5))
-                        : '';
-
-                    Notification::make()
-                        ->title(count($validRows) . ' öğrenci oluşturulacak')
-                        ->body('Onaylıyor musunuz?' . $errorMsg)
-                        ->success()
-                        ->actions([
-                            NotificationAction::make('confirmImport')
-                                ->label(count($validRows) . ' Öğrenciyi Oluştur')
-                                ->color('success')
-                                ->button()
-                                ->action(fn () => $this->confirmImport()),
-                        ])
-                        ->send();
+                    $this->confirmImport();
                 }),
             Action::make('sync_mailcow')
                 ->label('Mailcow\'u Senkronize Et')
@@ -271,14 +255,24 @@ class ListOgrencis extends ListRecords
         if ($imported > 0) {
             Notification::make()
                 ->title("{$imported} öğrenci başarıyla oluşturuldu.")
-                ->body($errors > 0 ? "{$errors} hata oluştu." : null)
+                ->body($errors > 0 ? "{$errors} öğrenci oluşturulamadı." : null)
                 ->success()
                 ->send();
-        } else {
+        }
+
+        if ($errors > 0) {
+            Notification::make()
+                ->title("{$errors} öğrenci oluşturulamadı")
+                ->body(implode("\n", array_slice($errorDetails, 0, 10)))
+                ->warning()
+                ->send();
+        }
+
+        if ($imported === 0 && $errors === 0) {
             Notification::make()
                 ->title('Hiç öğrenci oluşturulamadı.')
-                ->body(implode("\n", array_slice($errorDetails, 0, 5)))
-                ->danger()
+                ->body('Veri bulunamadı.')
+                ->warning()
                 ->send();
         }
 
