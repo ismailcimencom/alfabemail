@@ -182,7 +182,7 @@
                     
                     <p class="mail"><strong>Mail:</strong> {{ $ogrenci->user->email }}</p>
                     
-                    <p class="password"></p>
+                    <p class="password"><strong>Şifre:</strong> {{ $mailboxPassword }}</p>
                 </article>
             @endforeach
         </section>
