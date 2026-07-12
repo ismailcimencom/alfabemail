@@ -10,6 +10,7 @@
         "filament/filament": "^5.4",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
+        "phpoffice/phpspreadsheet": "^5.8",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-permission": "^7.2"
     },

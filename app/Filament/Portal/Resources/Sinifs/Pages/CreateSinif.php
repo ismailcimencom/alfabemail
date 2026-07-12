@@ -13,23 +13,41 @@ class CreateSinif extends CreateRecord
 {
     protected static string $resource = SinifResource::class;
 
+    public function mount(): void
+    {
+        $user = auth()->user();
+        if (!$user || !$user->hasAnyRole(['admin', 'yonetici', 'ogretmen'])) {
+            $this->redirect(SinifResource::getUrl('index'));
+            return;
+        }
+
+        parent::mount();
+    }
+
     protected function afterCreate(): void
     {
+        $user = auth()->user();
         $ogretmenler = $this->data['ogretmenler'] ?? [];
-        if (!empty($ogretmenler) && is_array($ogretmenler)) {
-            $this->record->ogretmenler()->sync($ogretmenler);
+
+        if ($user->hasRole('ogretmen')) {
+            $ogretmenler[] = $user->id;
         }
-        
+
+        if (!empty($ogretmenler) && is_array($ogretmenler)) {
+            $this->record->ogretmenler()->sync(array_unique($ogretmenler));
+        }
+
         ActivityLogger::created($this->record, 'Sınıf oluşturuldu: ' . $this->record->ad);
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        if (!isset($data['okul_id']) || empty($data['okul_id'])) {
-            if (auth()->user()?->hasRole('yonetici')) {
-                $okul = Okul::where('yonetici_user_id', auth()->id())->first();
+        $user = auth()->user();
+
+        if ($user->hasAnyRole(['admin', 'yonetici'])) {
+            if (!isset($data['okul_id']) || empty($data['okul_id'])) {
+                $okul = Okul::where('yonetici_user_id', $user->id)->first();
                 $data['okul_id'] = $okul?->id;
-                
                 if (!$data['okul_id']) {
                     Notification::make()
                         ->title('Hata')
@@ -39,6 +57,12 @@ class CreateSinif extends CreateRecord
                     $this->halt();
                 }
             }
+            $data['durum'] = 'aktif';
+        }
+
+        if ($user->hasRole('ogretmen')) {
+            $data['okul_id'] = $user->okul_id;
+            $data['durum'] = 'beklemede';
         }
 
         return $data;

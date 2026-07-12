@@ -30,27 +30,44 @@ class SinifResource extends Resource
     {
         $user = auth()->user();
         if (!$user) return false;
-        return $user->hasAnyRole(['admin', 'yonetici']);
+        return $user->hasAnyRole(['admin', 'yonetici', 'ogretmen']);
     }
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        $user = auth()->user();
+        if (!$user) return false;
+        if ($user->hasAnyRole(['admin', 'yonetici'])) return true;
+        if ($user->hasRole('ogretmen')) {
+            return $record->okul_id === $user->okul_id;
+        }
+        return false;
     }
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery();
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user?->hasRole('ogretmen')) {
+            return $query->whereHas('okul', fn($q) => $q->where('id', $user->okul_id));
+        }
+
+        if ($user?->hasRole('yonetici')) {
+            return $query->whereHas('okul', fn($q) => $q->where('yonetici_user_id', $user->id));
+        }
+
+        return $query;
     }
 
     public static function form(Schema $schema): Schema

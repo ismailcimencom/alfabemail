@@ -14,7 +14,7 @@ class ListOgretmenler extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('Öğretmen Oluştur'),
+                ->label('Öğretmen Davet Et'),
         ];
     }
 }

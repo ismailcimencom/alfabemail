@@ -40,4 +40,9 @@ class Okul extends Model
     {
         return $this->hasMany(Sinif::class);
     }
+
+    public function haftalikProgramlar(): HasMany
+    {
+        return $this->hasMany(HaftalikProgram::class);
+    }
 }

@@ -37,7 +37,7 @@ class OgrenciResource extends Resource
         if (!$user) return false;
         
         $roles = $user->roles()->pluck('name')->toArray();
-        return in_array('admin', $roles) || in_array('ogretmen', $roles);
+        return in_array('admin', $roles) || in_array('yonetici', $roles) || in_array('ogretmen', $roles);
     }
 
     public static function canCreate(): bool
@@ -46,7 +46,7 @@ class OgrenciResource extends Resource
         if (!$user) return false;
         
         $roles = $user->roles()->pluck('name')->toArray();
-        return in_array('admin', $roles) || in_array('ogretmen', $roles);
+        return in_array('admin', $roles) || in_array('yonetici', $roles) || in_array('ogretmen', $roles);
     }
 
     public static function canEdit($record): bool
@@ -55,7 +55,7 @@ class OgrenciResource extends Resource
         if (!$user) return false;
         
         $roles = $user->roles()->pluck('name')->toArray();
-        return in_array('admin', $roles) || in_array('ogretmen', $roles);
+        return in_array('admin', $roles) || in_array('yonetici', $roles) || in_array('ogretmen', $roles);
     }
 
     public static function getEloquentQuery(): Builder

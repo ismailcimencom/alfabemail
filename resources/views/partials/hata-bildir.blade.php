@@ -3,6 +3,11 @@
   ⚠️
 </div>
 
+<a href="https://yolharitasi.alfabe.co" target="_blank" rel="noopener"
+   style="position:fixed;bottom:24px;left:24px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:white;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;box-shadow:0 6px 20px rgba(139,92,246,0.4);z-index:9998;border:none;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Fikir Paneli">
+  💡
+</a>
+
 <div id="hataModalGlobal" style="display:none;position:fixed;z-index:9999;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.style.display='none'">
   <div style="background:#fff;border-radius:20px;padding:30px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">
     <button type="button" onclick="document.getElementById('hataModalGlobal').style.display='none'" style="position:absolute;top:12px;right:16px;border:none;background:none;font-size:28px;cursor:pointer;color:#888;">&times;</button>

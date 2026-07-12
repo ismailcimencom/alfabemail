@@ -151,6 +151,14 @@ class PendingUserResource extends Resource
                     ->color('success')
                     ->visible(fn ($record) => $record->status === 'pending')
                     ->form([
+                        TextInput::make('name')
+                            ->label('Ad Soyad')
+                            ->default(fn ($record) => $record->name)
+                            ->required(),
+                        TextInput::make('school')
+                            ->label('Okul Adı')
+                            ->default(fn ($record) => $record->school)
+                            ->required(),
                         Select::make('assigned_role')
                             ->label('Rol')
                             ->options([
@@ -162,20 +170,40 @@ class PendingUserResource extends Resource
                             ->required(),
                     ])
                     ->action(function (PendingUser $record, array $data) {
-                        $okul = \App\Models\Okul::where('ad', $record->school)->first();
+                        $existingUser = User::where('email', $record->email)->first();
+                        if ($existingUser) {
+                            Notification::make()
+                                ->title('Bu e-posta adresi zaten kayıtlı.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+
+                        $okul = \App\Models\Okul::where('ad', $data['school'])->first();
+                        if (!$okul) {
+                            $okul = \App\Models\Okul::create([
+                                'ad' => $data['school'],
+                                'is_active' => true,
+                                'durum' => 'onayli',
+                            ]);
+                        }
 
                         $user = User::create([
-                            'name' => $record->name,
+                            'name' => $data['name'],
                             'email' => $record->email,
-                            'password' => $record->password,
+                            'password' => $record->password ?? \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
                             'phone' => $record->phone,
-                            'okul_id' => $okul?->id,
+                            'okul_id' => $okul->id,
                             'is_active' => true,
                         ]);
                         $user->assignRole($data['assigned_role']);
 
                         if ($data['assigned_role'] === 'yonetici' && $okul) {
                             $okul->update(['yonetici_user_id' => $user->id]);
+                        }
+
+                        if ($data['assigned_role'] === 'veli') {
+                            \App\Models\Veli::create(['user_id' => $user->id]);
                         }
 
                         $record->delete();

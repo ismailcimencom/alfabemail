@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Services\MailcowService;
 use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ogrenci extends Model
 {
@@ -76,5 +77,10 @@ class Ogrenci extends Model
         return $this->belongsToMany(Odev::class, 'odev_ogrenci', 'ogrenci_id', 'odev_id')
             ->withPivot('tamamlandi', 'tamamlanma_tarihi')
             ->withTimestamps();
+    }
+
+    public function bekleyenTakvimEtkinlikleri(): HasMany
+    {
+        return $this->hasMany(BekleyenTakvimEtkinligi::class, 'ogrenci_id');
     }
 }

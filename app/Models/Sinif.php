@@ -15,6 +15,7 @@ class Sinif extends Model
     protected $fillable = [
         'okul_id',
         'ad',
+        'durum',
     ];
 
     protected static function booted()
@@ -58,5 +59,10 @@ class Sinif extends Model
     public function odevler(): HasMany
     {
         return $this->hasMany(Odev::class);
+    }
+
+    public function haftalikProgramlar(): HasMany
+    {
+        return $this->hasMany(HaftalikProgram::class);
     }
 }

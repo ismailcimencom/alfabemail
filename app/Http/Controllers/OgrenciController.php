@@ -7,6 +7,7 @@ use App\Models\Ogrenci;
 use App\Models\User;
 use App\Services\MailcowService;
 use App\Services\ProfanityFilter;
+use App\Services\TakvimService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -102,7 +103,7 @@ class OgrenciController extends Controller
 
         return response()->json([
             'message' => 'Giriş başarılı.', 
-            'redirect' => route('ogrenci.dashboard'),
+            'redirect' => route('ogrenci.mail'),
             'veli_emails' => $veliEmails
         ]);
     }
@@ -177,10 +178,35 @@ class OgrenciController extends Controller
                 'ogrenci_password' => $qrData['password'],
             ]);
 
-            return response()->json(['redirect' => route('ogrenci.dashboard')]);
+            return response()->json(['redirect' => route('ogrenci.mail')]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Karekod işlenirken hata oluştu.'], 500);
         }
+    }
+
+    public function redirectToMail()
+    {
+        if (!Auth::check() || !Auth::user()->hasRole('ogrenci')) {
+            return redirect()->route('ogrenci.giris');
+        }
+
+        $email = session('ogrenci_email');
+        $password = session('ogrenci_password');
+
+        if (!$email || !$password) {
+            return redirect()->route('ogrenci.giris');
+        }
+
+        $ogrenci = Auth::user()->ogrenci;
+        if ($ogrenci && $ogrenci->bekleyenTakvimEtkinlikleri()->where('eklendi_mi', false)->where('hata_mi', false)->exists()) {
+            try {
+                app(TakvimService::class)->senkronizeEt($ogrenci, $password);
+            } catch (\Exception $e) {
+                report($e);
+            }
+        }
+
+        return view('ogrenci.mail-yonlendir', compact('email', 'password'));
     }
 
     public function dashboard()

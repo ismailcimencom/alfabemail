@@ -11,7 +11,7 @@ class PortalTheme extends ServiceProvider
     public function boot(): void
     {
         Panel::configureUsing(function (Panel $panel) {
-            if ($panel->getId() === 'portal') {
+            if (in_array($panel->getId(), ['yonetici', 'ogretmen', 'veli'])) {
                 $panel
                     ->colors([
                         'primary' => [

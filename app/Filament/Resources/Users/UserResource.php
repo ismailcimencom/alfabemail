@@ -28,16 +28,17 @@ class UserResource extends Resource
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('ogretmen.create') ?? false;
+        return auth()->user()?->hasRole('admin') ?? false;
     }
 
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
         $user = auth()->user();
-        if ($record->hasRole('admin') && $record->id !== $user?->id) {
+        if (!$user) return false;
+        if ($record->hasRole('admin') && $record->id !== $user->id) {
             return false;
         }
-        return $user?->can('ogretmen.edit') ?? false;
+        return $user->hasRole('admin');
     }
 
     public static function form(Schema $schema): Schema

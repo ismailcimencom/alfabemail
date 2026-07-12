@@ -5,6 +5,7 @@ namespace App\Filament\Portal\Widgets;
 use App\Models\Okul;
 use App\Models\Sinif;
 use App\Models\Ogrenci;
+use App\Models\MailAktiviteLog;
 use Illuminate\Support\Facades\DB;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -30,20 +31,37 @@ class PortalStatsOverview extends BaseWidget
                     ->description('Bu hesaba bağlı okul yok')
                     ->color('danger');
             } else {
+                $sinifIds = Sinif::where('okul_id', $okulId)->pluck('id');
+                $ogrenciIds = Ogrenci::whereIn('sinif_id', $sinifIds)->pluck('id');
+
                 $ogretmenSayisi = \DB::table('ogretmen_sinif')
-                    ->whereIn('sinif_id', Sinif::where('okul_id', $okulId)->pluck('id'))
+                    ->whereIn('sinif_id', $sinifIds)
                     ->distinct('ogretmen_user_id')
                     ->count();
-                
+
                 $stats[] = Stat::make('Öğretmenler', $ogretmenSayisi)
                     ->description('Okulunuzdaki aktif öğretmenler')
                     ->color('primary');
 
-                $stats[] = Stat::make('Sınıflar', Sinif::where('okul_id', $okulId)->count())
+                $stats[] = Stat::make('Sınıflar', $sinifIds->count())
                     ->color('info');
 
-                $stats[] = Stat::make('Öğrenciler', Ogrenci::whereHas('sinif', fn($q) => $q->where('okul_id', $okulId))->count())
+                $stats[] = Stat::make('Öğrenciler', $ogrenciIds->count())
                     ->color('success');
+
+                $gonderilen = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)
+                    ->where('tip', 'gonderilen')->count();
+
+                $alinan = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)
+                    ->where('tip', 'alinan')->count();
+
+                $stats[] = Stat::make('Gönderilen Mail', $gonderilen)
+                    ->description('Öğrencilerden gönderilen toplam mail')
+                    ->color('warning');
+
+                $stats[] = Stat::make('Alınan Mail', $alinan)
+                    ->description('Öğrencilere gelen toplam mail')
+                    ->color('gray');
             }
         }
 
@@ -52,12 +70,28 @@ class PortalStatsOverview extends BaseWidget
                 ->where('ogretmen_user_id', $user->id)
                 ->pluck('sinif_id');
             
+            $ogrenciIds = Ogrenci::whereIn('sinif_id', $sinifIds)->pluck('id');
+
             $stats[] = Stat::make('Sınıflarım', $sinifIds->count())
                 ->color('primary');
 
-            $stats[] = Stat::make('Öğrencilerim', Ogrenci::whereIn('sinif_id', $sinifIds)->count())
+            $stats[] = Stat::make('Öğrencilerim', $ogrenciIds->count())
                 ->description('Mailbox sahibi öğrencileriniz')
                 ->color('success');
+
+            $gonderilen = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)
+                ->where('tip', 'gonderilen')->count();
+
+            $alinan = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)
+                ->where('tip', 'alinan')->count();
+
+            $stats[] = Stat::make('Gönderilen Mail', $gonderilen)
+                ->description('Öğrencilerden gönderilen')
+                ->color('warning');
+
+            $stats[] = Stat::make('Alınan Mail', $alinan)
+                ->description('Öğrencilere gelen')
+                ->color('gray');
         }
 
         return $stats;

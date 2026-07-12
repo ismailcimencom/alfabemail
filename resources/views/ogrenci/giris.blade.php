@@ -46,6 +46,16 @@
     #qr-reader { width: 100%; border-radius: 12px; overflow: hidden; }
     #qr-status { margin-top: 10px; font-size: 14px; color: #475569; text-align: center; }
     .back { display: inline-block; margin-top: 16px; color: var(--primary); text-decoration: none; font-size: 14px; }
+    .beta-btn {
+      position: fixed; top: 16px; right: 16px; z-index: 1000;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff; border: none; border-radius: 10px;
+      padding: 8px 18px; font-size: 13px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(245,158,11,.35);
+      transition: opacity .2s, transform .2s; text-decoration: none;
+      font-family: inherit;
+    }
+    .beta-btn:hover { opacity: .9; transform: scale(1.05); }
     @media (max-width: 640px) { .container { grid-template-columns: 1fr; } }
 
     /* Loading overlay */
@@ -87,6 +97,8 @@
       <div class="loading-sub">Lütfen bekleyin</div>
     </div>
   </div>
+
+  <a href="https://beta.alfabe.co" class="beta-btn" target="_blank" rel="noopener">🚀 Beta Sürümü</a>
 
   <div>
     <a href="{{ route('home') }}" class="back">← Ana Sayfa</a>

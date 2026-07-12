@@ -3,8 +3,9 @@
 namespace App\Filament\Portal\Resources\Odevler\Pages;
 
 use App\Filament\Portal\Resources\Odevler\OdevResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Models\BekleyenTakvimEtkinligi;
 use App\Models\Ogrenci;
+use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 
 class CreateOdev extends CreateRecord
@@ -37,6 +38,16 @@ class CreateOdev extends CreateRecord
             $attachData[$ogrenci->id] = ['tamamlandi' => false];
         }
         $odev->ogrenciler()->attach($attachData);
+
+        foreach ($ogrenciler as $ogrenci) {
+            BekleyenTakvimEtkinligi::create([
+                'ogrenci_id' => $ogrenci->id,
+                'odev_id' => $odev->id,
+                'baslik' => $data['baslik'],
+                'aciklama' => $data['aciklama'] ?? null,
+                'teslim_tarihi' => $data['teslim_tarihi'],
+            ]);
+        }
 
         return $odev;
     }

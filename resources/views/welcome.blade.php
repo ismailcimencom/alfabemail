@@ -128,9 +128,7 @@
         window.dismissMailCounter = dismissMailCounter;
       })();
     </script>
-    <div style="text-align:center;margin-top:6px;">
-      <button onclick="document.getElementById('kayitModal').style.display='flex'" style="background:#5e8df7;color:#fff;border:none;border-radius:999px;padding:12px 32px;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(94,141,247,.4);">Kaydol 🐧</button>
-    </div>
+
   </section>
 
   <!-- Giriş Kartları -->
@@ -143,12 +141,12 @@
         <article class="card manager">
           <h2>🏫 Yönetici</h2>
           <p>Okul yönetimi, sınıf ve öğretmen organizasyonu.</p>
-          <button onclick="go('/panel')">Yönetici Paneli</button>
+          <button onclick="go('/yonetici')">Yönetici Paneli</button>
         </article>
         <article class="card teacher">
           <h2>🧑🏫 Öğretmen</h2>
-          <p>Öğrenci kaydı, sınıf süreç yönetimi.</p>
-          <button onclick="go('/panel')">Öğretmen Paneli</button>
+          <p>Toplu öğrenci mail kaydı, sınıf süreç yönetimi.</p>
+          <button onclick="go('/ogretmen')">Öğretmen Paneli</button>
         </article>
       </div>
 
@@ -161,12 +159,12 @@
       <div class="right-col">
         <article class="card parent">
           <h2>👨👩👧 Veli</h2>
-          <p>Öğrenci gelişimi takibi ve etkinlik özet raporları.</p>
-          <button onclick="go('/panel')">Veli Girişi</button>
+          <p>Öğrenci mail gelişim takibi ve etkinlik özet raporları.</p>
+          <button onclick="go('/veli')">Veli Girişi</button>
         </article>
         <article class="card portal-info">
           <h2>🤝 Admin</h2>
-          <p>Sistemi tanıtan ve yöneten admin paneli.</p>
+          <p>Sistemi yöneten öğrenci merkezli admin paneli.</p>
           <button onclick="go('/admin')">Admin Paneli</button>
         </article>
       </div>
@@ -176,21 +174,17 @@
   <footer class="footer">
     <div class="footer-wrap">
       <section>
-        <h3>ALFABE.CO MAİL PANELİ</h3>
-        <p>Çocuklar güvenli eMail dünyasına giriş yapın.</p>
-        <div class="socials">
-          <a href="https://www.instagram.com/kapsulserix">Instagram</a><a href="https://x.com/kapsulserix">X</a>
-          <a href="https://nsosyal.com/kapsulserix">N Sosyal</a><a href="https://www.youtube.com/@kapsulserix42">YouTube</a>
-        <a href="https://www.facebook.com/profile.php?id=61587109013839">Facebook</a>
-        </div>
+        <h3>Alfabe.Co Mail Eğitim Paneli</h3>
+        <p>Çocuklar için güvenli e-Mail dünyasına giriş yapın. Öğrencilerinizin dijital adımlarını güvenle atmasını sağlayın. Okul yöneticileri, öğretmenler ve velilerin el birliğiyle takip edebildiği bu güvenli iletişim platformuna, Alfabe dünyasına hoş geldiniz.</p>
       </section>
       <section>
         <h3>Hızlı Linkler</h3>
         <ul>
           <li><a href="{{ url('/') }}">Ana Sayfa</a></li>
           <li><a href="{{ route('ogrenci.giris') }}">Öğrenci Girişi</a></li>
-          <li><a href="/panel">Okul Girişi</a></li>
-          <li><a href="/panel">Veli Girişi</a></li>
+          <li><a href="/yonetici">Yönetici Paneli</a></li>
+          <li><a href="/ogretmen">Öğretmen Paneli</a></li>
+          <li><a href="/veli">Veli Paneli</a></li>
           <li><a href="/admin">Admin Paneli</a></li>
           <li><a href="https://yolharitasi.alfabe.co/">Fikir Paneli</a></li>
            <li><a href="https://mail.alfabe.co/">Mail Paneli</a></li>

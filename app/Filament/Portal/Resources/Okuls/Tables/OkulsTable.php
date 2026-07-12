@@ -81,7 +81,7 @@ class OkulsTable
             ])
             ->actions([
                 EditAction::make()
-                    ->visible(fn () => auth()->user()->can('okul.edit')),
+                    ->visible(fn () => auth()->user()?->hasRole('admin') ?? false),
                 Action::make('onayla')
                     ->label(fn (Okul $record) => $record->durum === 'onayli' ? 'Onayı Kaldır' : 'Onayla')
                     ->icon(fn (Okul $record) => $record->durum === 'onayli' ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
@@ -101,7 +101,7 @@ class OkulsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn () => auth()->user()->can('okul.delete')),
+                        ->visible(fn () => auth()->user()?->hasRole('admin') ?? false),
                 ]),
             ]);
     }

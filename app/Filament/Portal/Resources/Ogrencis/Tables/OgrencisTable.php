@@ -206,9 +206,9 @@ class OgrencisTable
                     ->openUrlInNewTab()
                     ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false),
                 EditAction::make()
-                    ->visible(fn () => auth()->user()->can('ogrenci.edit')),
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false),
                 DeleteAction::make()
-                    ->visible(fn () => auth()->user()->can('ogrenci.delete')),
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -251,7 +251,7 @@ class OgrencisTable
                             return redirect()->route('ogrenci.yaka-karti.bulk', ['ids' => $ids]);
                         }),
                     DeleteBulkAction::make()
-                        ->visible(fn () => auth()->user()->can('ogrenci.delete')),
+                        ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false),
                     BulkAction::make('reset_passwords')
                         ->label('Toplu Şifre Sıfırla')
                         ->icon('heroicon-o-key')

@@ -58,7 +58,7 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make()
-                    ->visible(fn ($record) => auth()->user()->can('ogretmen.edit') && (!$record->hasRole('admin') || $record->id === auth()->id())),
+                    ->visible(fn ($record) => auth()->user()?->hasRole('admin') && (!$record->hasRole('admin') || $record->id === auth()->id())),
                 Action::make('approve_admin')
                     ->label('Onayla')
                     ->icon('heroicon-o-check-badge')
@@ -104,7 +104,7 @@ class UsersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn () => auth()->user()->can('ogretmen.delete'))
+                        ->visible(fn () => auth()->user()?->hasRole('admin'))
                         ->action(function ($records) {
                             $adminIds = $records->filter(fn ($r) => $r->hasRole('admin'))->pluck('id');
                             $records = $records->reject(fn ($r) => $r->hasRole('admin'));

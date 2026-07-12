@@ -53,11 +53,11 @@ class PortalDashboard extends Dashboard
         }
 
         if ($user->hasRole('ogretmen')) {
-            return 'Öğrenci kaydı ve süreç yönetimi paneline hoş geldiniz.';
+            return 'Toplu öğrenci mail kaydı ve süreç yönetimi paneline hoş geldiniz.';
         }
 
         if ($user->hasRole('veli')) {
-            return 'Öğrenci gelişimi ve etkinlik özet raporları paneline hoş geldiniz.';
+            return 'Öğrenci mail gelişim takibi ve etkinlik özet raporları paneline hoş geldiniz.';
         }
 
         return 'Alfabe Mail portalına hoş geldiniz.';

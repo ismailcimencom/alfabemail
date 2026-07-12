@@ -3,13 +3,16 @@
 namespace App\Filament\Portal\Resources\Ogretmenler;
 
 use App\Filament\Portal\Resources\Ogretmenler\Pages\CreateOgretmen;
+use App\Filament\Portal\Resources\Ogretmenler\Pages\EditOgretmen;
 use App\Filament\Portal\Resources\Ogretmenler\Schemas\OgretmenForm;
 use App\Models\User;
 use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class OgretmenlerResource extends Resource
 {
@@ -45,6 +48,31 @@ class OgretmenlerResource extends Resource
         return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
     }
 
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery()->role('ogretmen');
+        $user = auth()->user();
+
+        if ($user?->hasRole('yonetici')) {
+            $okul = $user->okul;
+            if ($okul) {
+                $query->where('okul_id', $okul->id);
+            }
+        }
+
+        return $query;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return OgretmenForm::configure($schema);
@@ -53,7 +81,6 @@ class OgretmenlerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->query(User::role('ogretmen'))
             ->columns([
                 \Filament\Tables\Columns\TextColumn::make('name')
                     ->label('Ad Soyad')
@@ -61,9 +88,15 @@ class OgretmenlerResource extends Resource
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->label('E-posta')
                     ->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('phone')
+                    ->label('Telefon')
+                    ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('created_at')
                     ->label('Eklenme Tarihi')
                     ->dateTime('d.m.Y'),
+            ])
+            ->actions([
+                EditAction::make(),
             ])
             ->paginated([10, 25, 50]);
     }
@@ -73,6 +106,7 @@ class OgretmenlerResource extends Resource
         return [
             'index' => \App\Filament\Portal\Resources\Ogretmenler\Pages\ListOgretmenler::route('/'),
             'create' => CreateOgretmen::route('/create'),
+            'edit' => EditOgretmen::route('/{record}/edit'),
         ];
     }
 }

@@ -6,9 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use App\Models\User;
 
 class SinifsTable
 {
@@ -20,6 +18,19 @@ class SinifsTable
                     ->label('Sınıf Adı')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('durum')
+                    ->label('Durum')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'aktif' => 'success',
+                        'beklemede' => 'warning',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'aktif' => 'Aktif',
+                        'beklemede' => 'Onay Bekliyor',
+                        default => $state,
+                    }),
                 TextColumn::make('ogretmenler.name')
                     ->label('Öğretmenler')
                     ->badge()

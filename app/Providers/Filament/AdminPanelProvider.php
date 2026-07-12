@@ -20,6 +20,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use Filament\Navigation\NavigationItem;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
 use App\Filament\Resources\Yetki\YetkiManagement;
@@ -35,10 +36,14 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
                 fn () => Blade::render('<a href="{{ route(\'home\') }}" style="display:inline-block; margin-bottom: 20px; color: #7fa7ff; text-decoration: none; font-weight: bold;">← Ana Sayfa</a>'),
             )
+            ->navigationItems([
+
+            ])
             ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn () => auth()->check()
-                    ? view('partials.hata-bildir')->render() . view('filament.admin.widgets.chat-widget')->render()
+                    ? view('partials.hata-bildir')->render()
+                        . view('filament.admin.widgets.chat-widget')->render()
                     : '',
             )
             ->authGuard('web')
@@ -81,6 +86,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                'role:admin',
             ]);
     }
 }

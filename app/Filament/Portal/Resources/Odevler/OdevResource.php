@@ -58,6 +58,15 @@ class OdevResource extends Resource
         return in_array('admin', $roles) || in_array('ogretmen', $roles);
     }
 
+    public static function canDelete($record): bool
+    {
+        $user = auth()->user();
+        if (!$user) return false;
+
+        $roles = $user->roles()->pluck('name')->toArray();
+        return in_array('admin', $roles) || in_array('ogretmen', $roles);
+    }
+
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();

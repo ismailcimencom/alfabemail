@@ -3,17 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Mail\VerificationCodeMail;
+use App\Models\Okul;
 use App\Models\PendingUser;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
 class KayitController extends Controller
 {
     public function sendCode(Request $request)
     {
-        $request->validate(['email' => 'required|email|max:255']);
+        $request->validate([
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'school' => 'required|string|max:255',
+        ]);
 
         $email = $request->email;
 
@@ -37,6 +42,8 @@ class KayitController extends Controller
 
         $data = [
             'email' => $email,
+            'phone' => $request->phone,
+            'school' => $request->school,
             'verification_code' => $code,
             'verification_code_sent_at' => now(),
             'status' => 'pending',
@@ -106,8 +113,6 @@ class KayitController extends Controller
         $request->validate([
             'email' => 'required|email|max:255',
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'school' => 'required|string|max:255',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:yonetici,ogretmen,veli',
         ]);
@@ -124,18 +129,47 @@ class KayitController extends Controller
             ], 422);
         }
 
+        if ($request->role === 'yonetici') {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $pending->phone,
+                'password' => Hash::make($request->password),
+                'is_active' => true,
+            ]);
+            $user->assignRole('yonetici');
+
+            Okul::create([
+                'yonetici_user_id' => $user->id,
+                'ad' => $pending->school,
+                'telefon' => $pending->phone,
+                'is_active' => true,
+                'durum' => 'onayli',
+            ]);
+
+            $pending->update([
+                'name' => $request->name,
+                'password' => $request->password,
+                'assigned_role' => $request->role,
+                'status' => 'completed',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Yönetici hesabınız oluşturuldu! Giriş yapabilirsiniz.',
+                'redirect' => url('/yonetici/login'),
+            ]);
+        }
+
         $pending->update([
             'name' => $request->name,
-            'phone' => $request->phone,
-            'school' => $request->school,
             'password' => $request->password,
             'assigned_role' => $request->role,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' =>
-            'Kaydınız alındı! Yönetici onayından sonra giriş yapabileceksiniz.',
+            'message' => 'Kaydınız alındı! Yönetici onayından sonra giriş yapabileceksiniz.',
         ]);
     }
 }

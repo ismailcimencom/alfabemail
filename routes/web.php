@@ -11,7 +11,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/login', function () {
-    return redirect('/panel');
+    return redirect('/');
 })->name('login');
 
 // Öğrenci girişi (QR + form)
@@ -29,6 +29,14 @@ Route::get('/ogrenci/dashboard', function () {
 Route::post('/ogrenci/login', [OgrenciController::class, 'login'])->name('ogrenci.login');
 Route::post('/ogrenci/qr-login', [OgrenciController::class, 'qrLogin'])->name('ogrenci.qr-login');
 Route::post('/ogrenci/logout', [OgrenciController::class, 'logout'])->name('ogrenci.logout');
+
+// Genel çıkış (tüm paneller için)
+Route::post('/logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/');
+})->name('logout');
 Route::get('/ogrenci/yaka-karti/{ogrenci}', [OgrenciController::class, 'yakaKarti'])->name('ogrenci.yaka-karti');
 Route::get('/ogrenci/yaka-karti-bulk', [OgrenciController::class, 'yakaKartiBulk'])->name('ogrenci.yaka-karti.bulk');
 
@@ -115,6 +123,7 @@ Route::get('/debug/cleanup-ogrenciler', function () {
 
 // Authenticated routes
 Route::middleware(['auth'])->group(function () {
+    Route::get('/ogrenci/mail', [OgrenciController::class, 'redirectToMail'])->name('ogrenci.mail');
     Route::get('/ogrenci/dashboard', [OgrenciController::class, 'dashboard'])->name('ogrenci.dashboard');
     Route::get('/veli/dashboard', function () {
         return view('veli.dashboard');
@@ -122,6 +131,17 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/ogrenci/odevler', [OgrenciController::class, 'getOdevler'])->name('ogrenci.odevler');
     Route::post('/ogrenci/odev-tamamla', [OgrenciController::class, 'odevTamamla'])->name('ogrenci.odev-tamamla');
+});
+
+// Öğretmen Toplu Mail Aç
+use App\Http\Controllers\OgretmenTopluMailController;
+
+Route::prefix('ogretmen')->group(function () {
+    Route::get('/toplu-mail-ac', [OgretmenTopluMailController::class, 'showForm'])->name('ogretmen.toplu-mail.form');
+    Route::post('/toplu-mail-ac/send-code', [OgretmenTopluMailController::class, 'sendCode'])->name('ogretmen.toplu-mail.send-code');
+    Route::post('/toplu-mail-ac/verify-code', [OgretmenTopluMailController::class, 'verifyCode'])->name('ogretmen.toplu-mail.verify-code');
+    Route::get('/toplu-mail-ac/sifre-belirle', [OgretmenTopluMailController::class, 'showPasswordForm'])->name('ogretmen.toplu-mail.sifre-belirle');
+    Route::post('/toplu-mail-ac/sifre-belirle', [OgretmenTopluMailController::class, 'setPassword'])->name('ogretmen.toplu-mail.set-password');
 });
 
 // Hata bildir
@@ -154,6 +174,10 @@ Route::view('/cerez-politikasi', 'legal.cerez-politikasi')->name('cerez-politika
 // Aktivasyon linkleri
 Route::get('/aktivasyon/{token}', [App\Http\Controllers\ActivationController::class, 'activate'])->name('activation.activate');
 
+// Öğretmen şifre belirleme (email linki ile)
+Route::get('/ogretmen/sifre-belirle/{token}', [App\Http\Controllers\ActivationController::class, 'ogretmenSifreBelirle'])->name('ogretmen.sifre-belirle');
+Route::post('/ogretmen/sifre-belirle/{token}', [App\Http\Controllers\ActivationController::class, 'ogretmenSifreKaydet']);
+
 // API routes (Mailcow Proxy) - using /api prefix
 use App\Http\Controllers\MailcowProxyController;
 
@@ -178,3 +202,29 @@ Route::post('/admin-giris', function () {
     }
     return back()->with('error', 'Geçersiz giriş bilgileri');
 });
+
+// Örnek Excel indir
+Route::get('/ornek-ogrenci-excel', function () {
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->setCellValue('A1', 'Ad');
+    $sheet->setCellValue('B1', 'Soyad');
+    $sheet->setCellValue('C1', 'Şifre');
+    $sheet->setCellValue('A2', 'Ahmet');
+    $sheet->setCellValue('B2', 'Yılmaz');
+    $sheet->setCellValue('C2', 'Alfabe123!');
+    $sheet->setCellValue('A3', 'Ayşe');
+    $sheet->setCellValue('B3', 'Demir');
+    $sheet->setCellValue('C3', 'BenimSifrem123');
+    $sheet->setCellValue('A4', 'Mehmet');
+    $sheet->setCellValue('B4', 'Kaya');
+    $sheet->setCellValue('C4', 'Alfabe123!');
+
+    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+    $tempPath = storage_path('app/tmp-imports/' . uniqid('ornek-', true) . '.xlsx');
+    $writer->save($tempPath);
+
+    return response()->download($tempPath, 'ornek-ogrenci-listesi.xlsx', [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ])->deleteFileAfterSend(true);
+})->name('ornek-ogrenci-excel');

@@ -1,6 +1,6 @@
 # Alfabe Mail — Çocuklar için Güvenli E-posta Sistemi
 
-> **v1.3** — Kapsül Serix Teknoloji Platformu
+> **v1.5** — Kapsül Serix Teknoloji Platformu
 
 Çocukların güvenli, reklamsız, kötü söz içermeyen ve kontrollü bir ortamda e-posta kullanmasını sağlayan eğitim odaklı mail platformu.
 
@@ -12,7 +12,9 @@
 | Panel | URL | Kullanıcı | Açıklama |
 |-------|-----|-----------|----------|
 | Admin | `/admin` | admin | Tüm yönetim |
-| Portal | `/panel` | yonetici/ogretmen/veli | Okul, öğretmen, sınıf, öğrenci, ödev yönetimi |
+| Yönetici | `/yonetici` | yonetici | Okul, öğretmen, sınıf, öğrenci, ödev yönetimi |
+| Öğretmen | `/ogretmen` | ogretmen | Sınıf ve öğrenci yönetimi |
+| Veli | `/veli` | veli | Akademik takip, AI raporları |
 | Öğrenci | `/giris` | ...@alfabe.co | Karekodla giriş, mail kullanımı, ödev takibi |
 
 ---
@@ -43,13 +45,19 @@
 - [x] Baykuş maskot ile ödev bildirimleri
 - [x] Kota yönetimi: öğrenciye 100 MB başlangıç, admin 1024 MB'a kadar yükseltebilir
 
-### Portal Paneli (yonetici/ogretmen/veli)
+### Yönetici Paneli (`/yonetici`)
 - [x] Role göre özelleşmiş dashboard
-- [x] **Öğrenci Yönetimi**: CRUD, CSV yükleme (UI), Mailcow mailbox oluşturma, toplu yaka kartı
+- [x] **Öğrenci Yönetimi**: CRUD, toplu yapıştırma (modal), Mailcow mailbox oluşturma, toplu yaka kartı
 - [x] **Öğretmen Yönetimi**: CRUD, sınıf atama, inline sınıf oluşturma
 - [x] **Sınıf Yönetimi**: CRUD, pivot tabanlı filtreleme
 - [x] **Ödev Yönetimi**: CRUD, sınıfa/öğrenciye ödev atama, teslim tarihi, tamamlanma takibi
 - [x] **Okul Yönetimi** (admin): CRUD
+
+### Öğretmen Paneli (`/ogretmen`)
+- [x] Role göre özelleşmiş dashboard
+- [x] **Öğrenci Yönetimi**: CRUD, toplu yapıştırma (modal), Mailcow mailbox oluşturma, toplu yaka kartı
+- [x] **Sınıf Yönetimi**: CRUD, pivot tabanlı filtreleme
+- [x] **Ödev Yönetimi**: CRUD, sınıfa/öğrenciye ödev atama, teslim tarihi, tamamlanma takibi
 
 ### Veli Paneli
 - [x] AI Haftalık Özet Raporu (VeliAnalizService)
@@ -73,6 +81,7 @@
 - [x] Admin Dashboard widget'ları (istatistik özeti, kayıt grafiği, bildirimler)
 - [x] Kullanıcı rollerine göre panel erişim kontrolü (canAccessPanel)
 - [x] Öğrenci kota yönetimi: 100-1024 MB arası değiştirme (change_quota butonu)
+- [x] **Fikir Paneli** butonu: Admin panelde sol altta 💡 buton (`yolharitasi.alfabe.co`)
 
 ### Hata Bildir Sistemi
 - [x] Tüm sayfalarda floating ⚠️ butonu
@@ -403,8 +412,8 @@ okullar → siniflar → ogrenciler → ogrenci_veli (pivot)
 - `app/Filament/Resources/Yetki/` — Yetki/Rol Yönetimi
 - `app/Filament/Resources/Okuls/Pages/OkulOnay/` — Okul Onayları
 
-### Filament Kaynakları (Portal - `/panel`)
-- `app/Filament/Portal/Resources/Ogrencis/` — Öğrenci yönetimi
+### Filament Kaynakları (Yönetici Paneli - `/yonetici`)
+- `app/Filament/Portal/Resources/Ogrencis/` — Öğrenci yönetimi (toplu yapıştırma modalı ile `ListOgrencis.php`)
 - `app/Filament/Portal/Resources/Ogretmenler/` — Öğretmen yönetimi
 - `app/Filament/Portal/Resources/Sinifs/` — Sınıf yönetimi
 - `app/Filament/Portal/Resources/Okuls/` — Okul yönetimi
@@ -425,7 +434,6 @@ okullar → siniflar → ogrenciler → ogrenci_veli (pivot)
 - `resources/views/ogrenci/` — Öğrenci dashboard, yaka kartı
 - `resources/views/filament/portal/widgets/veli-dashboard.blade.php` — Veli dashboard (386 satır)
 - `resources/views/filament/portal/widgets/mesaj-kutusu.blade.php` — Admin mesaj widget
-- `resources/views/filament/portal/pages/toplu-ogrenci-ekle.blade.php` — Toplu öğrenci CSV yükleme (UI)
 - `resources/views/filament/portal/pages/okul-istek.blade.php` — Okul talep sayfası (UI)
 - `resources/views/filament/pages/mailcow-settings.blade.php` — Mailcow ayar formu
 - `resources/views/filament/admin/widgets/bildirim-widget.blade.php` — Admin bildirim widget
@@ -543,6 +551,33 @@ public static function getPages(): array
 ---
 
 ## 📋 Değişiklik Geçmişi
+
+### v1.6 — 2026-07-12
+- **403 hata sayfası** popup tasarımıyla yenilendi ("Buraya girmeye yetkiniz yok!" + Çıkış Yap butonu)
+- Genel çıkış (`/logout`) route'u eklendi (panel kullanıcıları için)
+- **Öğretmen sınıf listesi** düzeltildi: öğretmenler artık okuldaki tüm sınıfları görebiliyor
+- Öğretmen sınıf oluşturduğunda otomatik olarak pivot'a atanıyor
+- **Admin onay formu** iyileştirildi: Ad Soyad ve Okul Adı alanları eklendi, mükerrer e-posta kontrolü eklendi
+- "Oluştur & yeni oluştur" butonu "Oluştur & devam et" olarak değiştirildi
+- Footer metni tek paragraf haline getirildi
+- Filament çeviri override mekanizması kuruldu (`lang/vendor/filament-actions/tr/`)
+
+### v1.5 — 2026-07-12
+- **Toplu öğrenci ekleme** dosya yüklemeden çıkarıldı, metin yapıştırma (paste) sistemine geçildi
+- Öğretmen artık Excel'den kopyaladığı öğrenci listesini doğrudan textarea'a yapıştırıyor
+- Desteklenen ayraçlar: tab, virgül, noktalı virgül, pipe
+- Başlık satırı opsiyonel hale getirildi (ad, soyad bulunamazsa 1. sütun ad, 2. sütun soyad kabul edilir)
+- Şifre boş bırakılırsa varsayılan `Alfabe123!` atanıyor
+- `parseFile()` metodu kaldırıldı, yerine `parseText()` yazıldı
+- Örnek Excel indirme route'u temizlendi (`ob_start` hatası giderildi, temp dosya ile download yapılıyor)
+- Eski `toplu-ogrenci-ekle.blade.php` view'i kullanımdan kaldırıldı
+- Veli giriş sayfası kayıt metinleri güncellendi
+- Admin onayında Veli modeli oluşturma eklendi
+- **Fikir Paneli** sidebar menüsü ve sağ alt amber 💡 buton kaldırıldı (sol alttaki 💡 korundu)
+
+### v1.4 — 2026-06-13
+- **Fikir Paneli** butonu eklendi: Admin panel sidebar'da "Dış Bağlantılar" grubu altında `yolharitasi.alfabe.co` linki, sağ alt köşede floating 💡 buton (amber renk)
+- Güncellemeler README.md dosyasına işlenmeye başlandı
 
 ### v1.3 — 2026-06-12
 - **QR kod** boyutu 200 → 400 px (daha okunabilir yaka kartları)
