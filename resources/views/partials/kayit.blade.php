@@ -2,19 +2,18 @@
   <div style="background:#fff;border-radius:20px;padding:30px 30px 20px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">
     <button type="button" onclick="document.getElementById('kayitModal').style.display='none'" style="position:absolute;top:12px;right:16px;border:none;background:none;font-size:28px;cursor:pointer;color:#888;">&times;</button>
 
-    {{-- Step 1: Email --}}
+    {{-- Step 1: Basic info --}}
     <div id="kayitStep1">
       <div style="font-size:40px;text-align:center;margin-bottom:4px;">🐧</div>
       <h3 style="text-align:center;margin:0 0 4px;font-size:20px;color:#1a202c;">Hesap Oluştur</h3>
-      <p style="text-align:center;color:#6586a7;margin:0 0 20px;font-size:14px;">Başlamak için e-posta adresini gir!</p>
+      <p style="text-align:center;color:#6586a7;margin:0 0 20px;font-size:14px;">Başlamak için bilgilerini gir!</p>
       <div style="display:grid;gap:12px;">
-        <label style="font-size:13px;font-weight:600;color:#1a202c;">Öğretmen Ad Soyad :</label>
+        <label style="font-size:13px;font-weight:600;color:#1a202c;">Ad Soyad :</label>
         <input type="text" id="kayitName" placeholder="Adın Soyadın" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
-        <input type="email" id="kayitEmail" placeholder="E-posta adresin" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
+        <label style="font-size:13px;font-weight:600;color:#1a202c;">E-posta Adresiniz :</label>
+        <input type="email" id="kayitEmail" placeholder="ornek@mail.com" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
         <label style="font-size:13px;font-weight:600;color:#1a202c;">Telefon :</label>
-        <input type="tel" id="kayitPhone" placeholder="Telefon numaran" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
-        <label style="font-size:13px;font-weight:600;color:#1a202c;">Sınıf Adı :</label>
-        <input type="text" id="kayitSchool" placeholder="Sınıf adı" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
+        <input type="tel" id="kayitPhone" placeholder="05XX XXX XX XX" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
         <div id="kayitEmailError" style="color:#ef4444;font-size:13px;display:none;"></div>
         <button type="button" onclick="kayitSendCode()" id="kayitBtn1" style="background:#5e8df7;color:#fff;border:none;border-radius:999px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;">Doğrulama Kodu Gönder</button>
       </div>
@@ -52,7 +51,7 @@
       </div>
     </div>
 
-    {{-- Step 4: Password + Role-specific --}}
+    {{-- Step 4: Password + Role-specific fields --}}
     <div id="kayitStep4" style="display:none;">
       <div style="font-size:40px;text-align:center;margin-bottom:4px;">🔑</div>
       <h3 style="text-align:center;margin:0 0 4px;font-size:20px;color:#1a202c;">Şifre Belirle</h3>
@@ -61,6 +60,10 @@
         <div id="kayitRoleFields"></div>
         <input type="password" id="kayitPassword" placeholder="Şifre (en az 6 karakter)" minlength="6" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
         <input type="password" id="kayitPasswordConfirm" placeholder="Şifre Tekrar" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
+        <div id="kayitCoffeeArea" style="display:none;text-align:center;padding:12px;background:#fefce8;border-radius:12px;border:1px solid #fde68a;">
+          <p style="margin:0 0 8px;font-size:13px;color:#92400e;font-weight:500;">☕ Projemizin gelişmesi için yazılımcılarımıza bir kahve ısmarlamak ister misiniz?</p>
+          <a href="https://www.buymeacoffee.com/proacademy" target="_blank" style="display:inline-block;background:#FFDD00;color:#000;text-decoration:none;padding:8px 20px;border-radius:999px;font-size:13px;font-weight:700;">☕ Kahve Ismarla</a>
+        </div>
         <div id="kayitCompleteError" style="color:#ef4444;font-size:13px;display:none;"></div>
         <button type="button" onclick="kayitComplete()" id="kayitBtn4" style="background:#5e8df7;color:#fff;border:none;border-radius:999px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;">Kaydol</button>
       </div>
@@ -105,18 +108,16 @@ async function kayitSendCode() {
   const name = document.getElementById('kayitName').value.trim();
   const email = document.getElementById('kayitEmail').value.trim();
   const phone = document.getElementById('kayitPhone').value.trim();
-  const school = document.getElementById('kayitSchool').value.trim();
   if (!name) { kayitShowError('kayitEmailError', 'Adını soyadını gir.'); return; }
   if (!email) { kayitShowError('kayitEmailError', 'E-posta adresini gir.'); return; }
   if (!phone) { kayitShowError('kayitEmailError', 'Telefon numaranı gir.'); return; }
-  if (!school) { kayitShowError('kayitEmailError', 'Sınıf adını gir.'); return; }
   const btn = document.getElementById('kayitBtn1');
   btn.disabled = true; btn.textContent = 'Gönderiliyor...';
   try {
     const res = await fetch('{{ route("kayit.send-code") }}', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-      body: JSON.stringify({ name, email, phone, school })
+      body: JSON.stringify({ name, email, phone })
     });
     const data = await res.json();
     if (data.success) {
@@ -158,6 +159,33 @@ async function kayitVerifyCode() {
 function kayitGoToStep4() {
   if (!kayitRole) { kayitShowError('kayitRoleError', 'Lütfen bir rol seç.'); return; }
   kayitClearErrors();
+
+  const roleFields = document.getElementById('kayitRoleFields');
+  const coffeeArea = document.getElementById('kayitCoffeeArea');
+
+  if (kayitRole === 'ogretmen') {
+    roleFields.innerHTML = `
+      <label style="font-size:13px;font-weight:600;color:#1a202c;">Sınıf Adı :</label>
+      <input type="text" id="kayitSchool" placeholder="Örn: 4-A" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
+    `;
+    coffeeArea.style.display = 'none';
+  } else if (kayitRole === 'veli') {
+    roleFields.innerHTML = `
+      <label style="font-size:13px;font-weight:600;color:#1a202c;">Veli Türü :</label>
+      <select id="kayitVeliType" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
+        <option value="">Seçiniz</option>
+        <option value="anne">Anne</option>
+        <option value="baba">Baba</option>
+      </select>
+      <label style="font-size:13px;font-weight:600;color:#1a202c;margin-top:4px;">Çocuğa özel e-posta adres :</label>
+      <div style="display:flex;gap:4px;align-items:center;">
+        <input type="text" id="kayitChildEmail" placeholder="cocukmail" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;flex:1;color:#1a202c;">
+        <span style="font-size:14px;color:#94a3b8;font-weight:600;white-space:nowrap;">@alfabe.co</span>
+      </div>
+    `;
+    coffeeArea.style.display = 'block';
+  }
+
   document.getElementById('kayitStep3').style.display = 'none';
   document.getElementById('kayitStep4').style.display = 'block';
 }
@@ -184,16 +212,30 @@ async function kayitComplete() {
   const passwordConfirm = document.getElementById('kayitPasswordConfirm').value;
   if (!kayitRole) { kayitShowError('kayitCompleteError', 'Lütfen önce rol seç.'); return; }
   if (!name) { kayitShowError('kayitCompleteError', 'Adını soyadını gir.'); return; }
-
   if (password.length < 6) { kayitShowError('kayitCompleteError', 'Şifre en az 6 karakter olmalı.'); return; }
   if (password !== passwordConfirm) { kayitShowError('kayitCompleteError', 'Şifreler eşleşmiyor.'); return; }
+
+  const extra = {};
+  if (kayitRole === 'ogretmen') {
+    const school = document.getElementById('kayitSchool')?.value.trim();
+    if (!school) { kayitShowError('kayitCompleteError', 'Sınıf adını gir.'); return; }
+    extra.school = school;
+  } else if (kayitRole === 'veli') {
+    const veliType = document.getElementById('kayitVeliType')?.value;
+    if (!veliType) { kayitShowError('kayitCompleteError', 'Veli türünü seç (Anne/Baba).'); return; }
+    const childEmail = document.getElementById('kayitChildEmail')?.value.trim();
+    if (!childEmail) { kayitShowError('kayitCompleteError', 'Çocuğun e-posta adresini gir.'); return; }
+    extra.veli_type = veliType;
+    extra.child_email = childEmail + '@alfabe.co';
+  }
+
   const btn = document.getElementById('kayitBtn4');
   btn.disabled = true; btn.textContent = 'Kaydediliyor...';
   try {
     const res = await fetch('{{ route("kayit.complete") }}', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-      body: JSON.stringify({ email: kayitEmail, name, password, password_confirmation: passwordConfirm, role: kayitRole })
+      body: JSON.stringify({ email: kayitEmail, name, password, password_confirmation: passwordConfirm, role: kayitRole, ...extra })
     });
     const data = await res.json();
     if (data.success) {

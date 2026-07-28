@@ -12,6 +12,8 @@ class PendingUser extends Model
         'password',
         'phone',
         'school',
+        'veli_type',
+        'child_email',
         'verification_code',
         'verification_code_sent_at',
         'email_verified_at',

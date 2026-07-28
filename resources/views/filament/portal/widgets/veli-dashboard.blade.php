@@ -296,6 +296,11 @@
         <div id="passwordResetSuccess" style="display:none; color:#059669; font-size:14px; font-weight:700; text-align:center; background:#d1fae5; border-radius:12px; padding:12px; margin-top:16px;">✅ Şifre başarıyla sıfırlandı!</div>
         <div id="passwordResetError" style="display:none; color:#dc2626; font-size:14px; font-weight:700; text-align:center; background:#fee2e2; border-radius:12px; padding:12px; margin-top:12px;"></div>
     </div>
+  {{-- Buy Me a Coffee --}}
+  <div style="text-align:center;margin-top:24px;padding:16px;background:#fefce8;border-radius:16px;border:1px solid #fde68a;">
+    <p style="margin:0 0 8px;font-size:14px;color:#92400e;font-weight:500;">☕ Projemizin gelişmesi için yazılımcılarımıza bir kahve ısmarlamak ister misiniz?</p>
+    <a href="https://www.buymeacoffee.com/proacademy" target="_blank" style="display:inline-block;background:#FFDD00;color:#000;text-decoration:none;padding:10px 28px;border-radius:999px;font-size:15px;font-weight:700;">☕ Kahve Ismarla</a>
+  </div>
 </div>
 
 @push('scripts')

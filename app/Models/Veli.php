@@ -13,6 +13,8 @@ class Veli extends Model
     protected $table = 'veliler';
     protected $fillable = [
         'user_id',
+        'veli_type',
+        'child_email',
     ];
 
     public function user(): BelongsTo

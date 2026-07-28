@@ -17,7 +17,6 @@ class KayitController extends Controller
         $request->validate([
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:20',
-            'school' => 'required|string|max:255',
             'name' => 'nullable|string|max:255',
         ]);
 
@@ -45,7 +44,6 @@ class KayitController extends Controller
             'email' => $email,
             'name' => $request->name,
             'phone' => $request->phone,
-            'school' => $request->school,
             'verification_code' => $code,
             'verification_code_sent_at' => now(),
             'status' => 'pending',
@@ -117,6 +115,9 @@ class KayitController extends Controller
             'name' => 'required|string|max:255',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:ogretmen,veli',
+            'school' => 'nullable|string|max:255',
+            'veli_type' => 'nullable|string|in:anne,baba',
+            'child_email' => 'nullable|email|max:255',
         ]);
 
         $pending = PendingUser::where('email', $request->email)
@@ -141,17 +142,29 @@ class KayitController extends Controller
         $user->assignRole($request->role);
 
         if ($request->role === 'veli') {
-            \App\Models\Veli::create(['user_id' => $user->id]);
+            $veli = \App\Models\Veli::create([
+                'user_id' => $user->id,
+                'veli_type' => $request->veli_type,
+                'child_email' => $request->child_email,
+            ]);
         }
 
         Auth::login($user);
 
-        $pending->update([
+        $updateData = [
             'name' => $request->name,
             'password' => $request->password,
             'assigned_role' => $request->role,
             'status' => 'completed',
-        ]);
+        ];
+        if ($request->role === 'ogretmen' && $request->school) {
+            $updateData['school'] = $request->school;
+        }
+        if ($request->role === 'veli') {
+            $updateData['veli_type'] = $request->veli_type;
+            $updateData['child_email'] = $request->child_email;
+        }
+        $pending->update($updateData);
 
         $panelPath = $request->role === 'ogretmen' ? '/ogretmen' : '/veli';
 
