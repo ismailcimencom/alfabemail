@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Models\Ogrenci;
-use App\Models\Okul;
 use App\Models\Sinif;
 use App\Services\StudentCreationService;
 use Filament\Forms\Components\Hidden;
@@ -21,8 +20,6 @@ class UserForm
         $isCreate = fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord;
         $ogrenciRoleId = Role::where('name', 'ogrenci')->value('id');
         $isOgrenci = fn (callable $get) => $ogrenciRoleId && $get('roles') == $ogrenciRoleId;
-        $yoneticiRoleId = Role::where('name', 'yonetici')->value('id');
-        $isYonetici = fn (callable $get) => $yoneticiRoleId && $get('roles') == $yoneticiRoleId;
         $ogretmenRoleId = Role::where('name', 'ogretmen')->value('id');
         $isOgretmen = fn (callable $get) => $ogretmenRoleId && $get('roles') == $ogretmenRoleId;
         $veliRoleId = Role::where('name', 'veli')->value('id');
@@ -55,32 +52,9 @@ class UserForm
                     ->helperText('Boş bırakılırsa ad.soyad kullanılır')
                     ->hidden(fn (callable $get, $livewire) => !$isCreate($livewire) || !$isOgrenci($get)),
 
-                Select::make('ogrenci_okul_id')
-                    ->label('Okul')
-                    ->options(fn () => Okul::pluck('ad', 'id'))
-                    ->searchable()
-                    ->preload()
-                    ->native(false)
-                    ->createOptionForm([
-                        TextInput::make('ad')
-                            ->label('Okul Adı')
-                            ->required()
-                            ->maxLength(255),
-                    ])
-                    ->createOptionUsing(function (array $data) {
-                        return Okul::create([
-                            'ad' => $data['ad'],
-                            'is_active' => true,
-                        ])->id;
-                    })
-                    ->createOptionModalHeading('Yeni Okul Oluştur')
-                    ->hidden(fn (callable $get) => !$isOgrenci($get)),
-
                 Select::make('sinif_id')
                     ->label('Sınıf')
-                    ->options(fn (callable $get) => $get('ogrenci_okul_id')
-                        ? Sinif::where('okul_id', $get('ogrenci_okul_id'))->pluck('ad', 'id')
-                        : [])
+                    ->options(fn () => Sinif::pluck('ad', 'id'))
                     ->searchable()
                     ->preload()
                     ->hidden(fn (callable $get) => !$isOgrenci($get)),
@@ -112,50 +86,22 @@ class UserForm
                     ->searchable()
                     ->live(),
 
-                Select::make('okul_id')
-                    ->label('Okul')
-                    ->options(fn () => Okul::pluck('ad', 'id'))
-                    ->searchable()
-                    ->preload()
-                    ->native(false)
-                    ->createOptionForm([
-                        TextInput::make('ad')
-                            ->label('Okul Adı')
-                            ->required()
-                            ->maxLength(255),
-                    ])
-                    ->createOptionUsing(function (array $data) {
-                        return Okul::create([
-                            'ad' => $data['ad'],
-                            'is_active' => true,
-                        ])->id;
-                    })
-                    ->createOptionModalHeading('Yeni Okul Oluştur')
-                    ->hidden(fn (callable $get) => !$isYonetici($get) && !$isOgretmen($get)),
-
                 TextInput::make('phone')
                     ->label('Telefon')
                     ->tel()
-                    ->maxLength(20)
-                    ->hidden(fn (callable $get) => !$isYonetici($get)),
+                    ->maxLength(20),
 
                 Select::make('sinif_ids')
                     ->label('Sınıflar')
                     ->multiple()
-                    ->options(fn (callable $get) => $get('okul_id') ? Sinif::where('okul_id', $get('okul_id'))->pluck('ad', 'id') : [])
+                    ->options(fn () => Sinif::pluck('ad', 'id'))
                     ->searchable()
                     ->preload()
                     ->createOptionForm([
                         TextInput::make('ad')->label('Sınıf Adı')->required()->maxLength(255),
-                        Hidden::make('okul_id')
-                            ->default(fn ($livewire) => data_get($livewire, 'data.okul_id')),
                     ])
                     ->createOptionUsing(function (array $data) {
-                        if (!$data['okul_id']) {
-                            Notification::make()->title('Önce okul seçin')->warning()->send();
-                            return null;
-                        }
-                        return Sinif::create(['ad' => $data['ad'], 'okul_id' => $data['okul_id']])->id;
+                        return Sinif::create(['ad' => $data['ad']])->id;
                     })
                     ->createOptionModalHeading('Yeni Sınıf Oluştur')
                     ->hidden(fn (callable $get) => !$isOgretmen($get)),
@@ -172,12 +118,8 @@ class UserForm
                         TextInput::make('last_name')->label('Soyad')->required()->maxLength(255),
                         TextInput::make('nickname')->label('Rumuz')->suffix('@alfabe.co')
                             ->helperText('Boş bırakılırsa ad.soyad kullanılır'),
-                        Select::make('okul_id')->label('Okul')
-                            ->options(fn () => Okul::pluck('ad', 'id'))->searchable()->live(),
                         Select::make('sinif_id')->label('Sınıf')
-                            ->options(fn (callable $get) => $get('okul_id')
-                                ? Sinif::where('okul_id', $get('okul_id'))->pluck('ad', 'id')
-                                : [])
+                            ->options(fn () => Sinif::pluck('ad', 'id'))
                             ->searchable(),
                         TextInput::make('password')->label('Şifre')->password()->required()
                             ->default('Ogrenci123!'),

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Mail\VerificationCodeMail;
-use App\Models\Okul;
 use App\Models\PendingUser;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
@@ -114,7 +114,7 @@ class KayitController extends Controller
             'email' => 'required|email|max:255',
             'name' => 'required|string|max:255',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:yonetici,ogretmen,veli',
+            'role' => 'required|in:ogretmen,veli',
         ]);
 
         $pending = PendingUser::where('email', $request->email)
@@ -129,47 +129,35 @@ class KayitController extends Controller
             ], 422);
         }
 
-        if ($request->role === 'yonetici') {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $pending->phone,
-                'password' => Hash::make($request->password),
-                'is_active' => true,
-            ]);
-            $user->assignRole('yonetici');
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $pending->phone,
+            'password' => Hash::make($request->password),
+            'is_active' => false,
+        ]);
+        $user->assignRole($request->role);
 
-            Okul::create([
-                'yonetici_user_id' => $user->id,
-                'ad' => $pending->school,
-                'telefon' => $pending->phone,
-                'is_active' => true,
-                'durum' => 'onayli',
-            ]);
-
-            $pending->update([
-                'name' => $request->name,
-                'password' => $request->password,
-                'assigned_role' => $request->role,
-                'status' => 'completed',
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Yönetici hesabınız oluşturuldu! Giriş yapabilirsiniz.',
-                'redirect' => url('/yonetici/login'),
-            ]);
+        if ($request->role === 'veli') {
+            \App\Models\Veli::create(['user_id' => $user->id]);
         }
+
+        Auth::login($user);
 
         $pending->update([
             'name' => $request->name,
             'password' => $request->password,
             'assigned_role' => $request->role,
+            'status' => 'completed',
         ]);
+
+        $panelPath = $request->role === 'ogretmen' ? '/ogretmen' : '/veli';
 
         return response()->json([
             'success' => true,
-            'message' => 'Kaydınız alındı! Yönetici onayından sonra giriş yapabileceksiniz.',
+            'title' => 'Kaydın alındı!',
+            'message' => 'Yönetici onayından sonra giriş yapabileceksin.',
+            'redirect' => url($panelPath),
         ]);
     }
 }

@@ -30,32 +30,32 @@ class OgretmenlerResource extends Resource
     {
         $user = auth()->user();
         if (!$user) return false;
-        return $user->hasAnyRole(['admin', 'yonetici']);
+        return $user->hasAnyRole(['admin', 'ogretmen']);
     }
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function getEloquentQuery(): Builder
@@ -63,11 +63,11 @@ class OgretmenlerResource extends Resource
         $query = parent::getEloquentQuery()->role('ogretmen');
         $user = auth()->user();
 
-        if ($user?->hasRole('yonetici')) {
-            $okul = $user->okul;
-            if ($okul) {
-                $query->where('okul_id', $okul->id);
-            }
+        if ($user?->hasRole('ogretmen')) {
+            $sinifIds = \App\Models\Sinif::whereHas('ogretmenler', fn($q) => $q->where('users.id', $user->id))
+                ->pluck('id');
+
+            $query->whereHas('ogretmen_sinifler_pivot', fn($q) => $q->whereIn('sinif_id', $sinifIds));
         }
 
         return $query;

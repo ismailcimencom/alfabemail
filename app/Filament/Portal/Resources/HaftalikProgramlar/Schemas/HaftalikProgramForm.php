@@ -46,13 +46,6 @@ class HaftalikProgramForm
                 Select::make('sinif_id')
                     ->label('Sınıf')
                     ->options(function () {
-                        $user = auth()->user();
-                        if ($user?->hasRole('yonetici')) {
-                            $okulId = $user->okul?->id;
-                            return $okulId
-                                ? \App\Models\Sinif::where('okul_id', $okulId)->pluck('ad', 'id')
-                                : [];
-                        }
                         return \App\Models\Sinif::pluck('ad', 'id');
                     })
                     ->required()

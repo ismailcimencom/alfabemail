@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Console\Commands\ForbiddenCommand;
-use App\Models\Okul;
 use App\Models\Ogrenci;
 use App\Models\Sinif;
 use App\Models\User;
@@ -28,7 +27,6 @@ class AppServiceProvider extends ServiceProvider
             URL::forceRootUrl(config('app.url'));
         }
 
-        Okul::observe(ActivityLogObserver::class);
         Sinif::observe(ActivityLogObserver::class);
         Ogrenci::observe(ActivityLogObserver::class);
         User::observe(ActivityLogObserver::class);

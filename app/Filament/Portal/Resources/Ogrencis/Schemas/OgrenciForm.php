@@ -34,13 +34,14 @@ class OgrenciForm
 
                 Select::make('sinif_id')
                     ->label('Sınıf')
-                    ->options(fn () => Sinif::where('ogretmen_user_id', auth()->id())
-                        ->orWhereHas('ogretmenler', fn($q) => $q->where('users.id', auth()->id()))
-                        ->pluck('ad', 'id'))
+                    ->options(fn () => auth()->user()?->hasRole('admin')
+                        ? Sinif::pluck('ad', 'id')
+                        : Sinif::where('ogretmen_user_id', auth()->id())
+                            ->orWhereHas('ogretmenler', fn($q) => $q->where('users.id', auth()->id()))
+                            ->pluck('ad', 'id'))
                     ->searchable()
                     ->preload()
                     ->required()
-                    ->hidden(fn () => auth()->user()?->hasAnyRole(['yonetici']) ?? false)
                     ->columnSpan(12),
 
                 TextInput::make('ad_soyad')

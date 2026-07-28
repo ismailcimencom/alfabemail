@@ -63,7 +63,6 @@ class AdminPanelProvider extends PanelProvider
                 YetkiManagement::class,
                 \App\Filament\Resources\ActivityLogs\ActivityLogResource::class,
                 \App\Filament\Resources\Users\UserResource::class,
-                \App\Filament\Portal\Resources\Okuls\OkulResource::class,
                 \App\Filament\Portal\Resources\Ogrencis\OgrenciResource::class,
                 \App\Filament\Resources\Sponsors\SponsorResource::class,
                 \App\Filament\Resources\HataBildirisis\HataBildirisiResource::class,

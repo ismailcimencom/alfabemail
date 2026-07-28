@@ -27,7 +27,6 @@ class User extends Authenticatable implements FilamentUser
         'phone',
         'password',
         'is_active',
-        'okul_id',
     ];
 
     protected $hidden = [
@@ -54,14 +53,11 @@ class User extends Authenticatable implements FilamentUser
         if ($panel->getId() === 'admin') {
             return $this->hasRole('admin') && $this->is_active;
         }
-        if ($panel->getId() === 'yonetici') {
-            return $this->hasRole('yonetici') && $this->is_active;
-        }
         if ($panel->getId() === 'ogretmen') {
-            return $this->hasRole('ogretmen') && $this->is_active;
+            return $this->hasRole('ogretmen');
         }
         if ($panel->getId() === 'veli') {
-            return $this->hasRole('veli') && $this->is_active;
+            return $this->hasRole('veli');
         }
         return false;
     }
@@ -88,16 +84,6 @@ class User extends Authenticatable implements FilamentUser
         return $this->adminApprovalsRequested()
             ->whereNotNull('approved_at')
             ->count() === $totalApprovals;
-    }
-
-    public function okul(): HasOne
-    {
-        return $this->hasOne(Okul::class, 'yonetici_user_id');
-    }
-
-    public function bagli_okul(): BelongsTo
-    {
-        return $this->belongsTo(Okul::class, 'okul_id');
     }
 
     public function ogrenci(): HasOne

@@ -17,6 +17,7 @@ class SyncMailcowMailboxes extends Command
 
     public function handle(MailcowService $mailcow): void
     {
+        set_time_limit(0);
         if (!$mailcow->isConfigured()) {
             $this->error('Mailcow API yapılandırılmamış.');
             return;
@@ -38,7 +39,7 @@ class SyncMailcowMailboxes extends Command
 
         $systemLocalParts = [
             'admin', 'info', 'iletisim', 'noreply', 'postmaster',
-            'ogrenci', 'ogretmen', 'yonetici', 'deneme', 'test',
+            'ogrenci', 'ogretmen', 'deneme', 'test',
             'dmarc', 'spam', 'abuse', 'support', 'mailer-daemon',
         ];
 

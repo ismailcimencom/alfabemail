@@ -21,10 +21,6 @@ class PortalDashboard extends Dashboard
             return 'Portal';
         }
 
-        if ($user->hasRole('yonetici')) {
-            return 'Yönetici Paneli';
-        }
-
         if ($user->hasRole('ogretmen')) {
             return 'Öğretmen Paneli';
         }
@@ -46,10 +42,6 @@ class PortalDashboard extends Dashboard
 
         if (!$user) {
             return null;
-        }
-
-        if ($user->hasRole('yonetici')) {
-            return 'Okul yönetimi, sınıf ve öğretmen organizasyonu paneline hoş geldiniz.';
         }
 
         if ($user->hasRole('ogretmen')) {

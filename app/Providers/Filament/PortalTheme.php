@@ -11,7 +11,7 @@ class PortalTheme extends ServiceProvider
     public function boot(): void
     {
         Panel::configureUsing(function (Panel $panel) {
-            if (in_array($panel->getId(), ['yonetici', 'ogretmen', 'veli'])) {
+            if (in_array($panel->getId(), ['ogretmen', 'veli'])) {
                 $panel
                     ->colors([
                         'primary' => [
@@ -196,7 +196,6 @@ class PortalTheme extends ServiceProvider
                             }
                             
                             /* Role-specific color schemes */
-                            .role-yonetici { --primary: 34 197 94; }
                             .role-ogretmen { --primary: 239 68 68; }
                             .role-veli { --primary: 245 158 11; }
                             .role-ogrenci { --primary: 168 85 247; }

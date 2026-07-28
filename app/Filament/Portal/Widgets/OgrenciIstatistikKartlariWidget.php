@@ -2,35 +2,44 @@
 
 namespace App\Filament\Portal\Widgets;
 
+use App\Models\Sinif;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Ogrenci;
 use App\Models\MailAktiviteLog;
 use Illuminate\Support\Facades\Auth;
-use App\Services\MailcowService;
 
 class OgrenciIstatistikKartlariWidget extends StatsOverviewWidget
 {
+    protected static ?int $sort = 1;
     protected function getStats(): array
     {
         $user = Auth::user();
         $baseQuery = Ogrenci::query();
 
         if ($user->hasRole('ogretmen')) {
-            $baseQuery->whereHas('sinif', fn($q) => $q->where('ogretmen_user_id', $user->id));
-        } elseif ($user->hasRole('yonetici')) {
-            $baseQuery->whereHas('sinif.okul', fn($q) => $q->where('yonetici_user_id', $user->id));
+            $baseQuery->whereHas('sinif', fn($q) => $q
+                ->where('ogretmen_user_id', $user->id)
+                ->orWhereHas('ogretmenler', fn($q2) => $q2->where('users.id', $user->id))
+            );
         }
+
+        $sinifSayisi = $user->hasRole('ogretmen')
+            ? Sinif::where('ogretmen_user_id', $user->id)
+                ->orWhereHas('ogretmenler', fn($q) => $q->where('users.id', $user->id))
+                ->count()
+            : 0;
 
         $toplamOgrenci = (clone $baseQuery)->count();
         $aktifOgrenci = (clone $baseQuery)->whereHas('user', fn($q) => $q->where('is_active', true))->count();
+        $pasifOgrenci = $toplamOgrenci - $aktifOgrenci;
 
-        $son7gun = now()->subDays(7);
-        $gonderilen = MailAktiviteLog::where('tip', 'gonderilen')
-            ->where('tarih', '>=', $son7gun)
+        $ogrenciIds = (clone $baseQuery)->pluck('id');
+        $gonderilen = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)
+            ->where('tip', 'gonderilen')
             ->count();
-        $alinan = MailAktiviteLog::where('tip', 'alinan')
-            ->where('tarih', '>=', $son7gun)
+        $alinan = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)
+            ->where('tip', 'alinan')
             ->count();
 
         return [
@@ -40,12 +49,20 @@ class OgrenciIstatistikKartlariWidget extends StatsOverviewWidget
             Stat::make('Aktif Öğrenci', $aktifOgrenci)
                 ->description('Giriş yapabilen')
                 ->icon('heroicon-o-check-circle'),
-            Stat::make('Gönderilen (7g)', $gonderilen)
-                ->description('Son 7 gün')
+            Stat::make('Pasif Öğrenci', $pasifOgrenci)
+                ->description('Giriş yapamayan')
+                ->icon('heroicon-o-minus-circle')
+                ->color('danger'),
+            Stat::make('Sınıflarım', $sinifSayisi)
+                ->description('Sorumlu olduğunuz sınıflar')
+                ->icon('heroicon-o-rectangle-stack')
+                ->color('primary'),
+            Stat::make('Gönderilen', $gonderilen)
+                ->description('Öğrencilerden gönderilen')
                 ->icon('heroicon-o-paper-airplane')
                 ->color('success'),
-            Stat::make('Alınan (7g)', $alinan)
-                ->description('Son 7 gün')
+            Stat::make('Alınan', $alinan)
+                ->description('Öğrencilere gelen')
                 ->icon('heroicon-o-inbox')
                 ->color('info'),
         ];
@@ -53,6 +70,6 @@ class OgrenciIstatistikKartlariWidget extends StatsOverviewWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 }

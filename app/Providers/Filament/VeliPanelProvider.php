@@ -33,6 +33,12 @@ class VeliPanelProvider extends PanelProvider
                 fn () => Blade::render('<a href="{{ route(\'home\') }}" style="display:inline-block; margin-bottom: 20px; color: #7fa7ff; text-decoration: none; font-weight: bold;">← Ana Sayfa</a>'),
             )
             ->renderHook(
+                PanelsRenderHook::BODY_START,
+                fn () => auth()->check() && !auth()->user()->is_active && auth()->user()->hasRole('veli')
+                    ? view('partials.onay-bekleniyor')->render()
+                    : '',
+            )
+            ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn () => view('partials.hata-bildir')->render(),
             )
@@ -46,10 +52,7 @@ class VeliPanelProvider extends PanelProvider
                 'primary' => Color::Blue,
                 'gray' => Color::Slate,
             ])
-            ->brandName(fn () => auth()->user()?->bagli_okul?->ad
-                ?? auth()->user()?->ogrenci?->sinif?->okul?->ad
-                ?? auth()->user()?->veli?->ogrenciler?->first()?->sinif?->okul?->ad
-                ?? 'ALFABE Veli Paneli')
+            ->brandName('ALFABE Veli Paneli')
             ->favicon(asset('favicon.png'))
             ->discoverResources(in: app_path('Filament/Portal/Resources'), for: 'App\Filament\Portal\Resources')
             ->resources([])

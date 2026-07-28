@@ -22,14 +22,14 @@ class EditSinif extends EditRecord
     protected function getHeaderActions(): array
     {
         $user = auth()->user();
-        $isYonetici = $user?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        $isAdmin = $user?->hasRole('admin') ?? false;
 
         return [
             Action::make('ogretmen_ekle')
                 ->label('Öğretmen Davet Et')
                 ->icon('heroicon-o-user-plus')
                 ->color('info')
-                ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false)
+                ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false)
                 ->form([
                     TextInput::make('email')
                         ->label('Öğretmen E-posta')
@@ -60,11 +60,9 @@ class EditSinif extends EditRecord
                             ->success()
                             ->send();
                     } else {
-                        $okul = $sinif->okul;
                         $ogretmen = User::create([
                             'name' => explode('@', $email)[0],
                             'email' => $email,
-                            'okul_id' => $okul?->id,
                             'is_active' => true,
                         ]);
                         $ogretmen->assignRole('ogretmen');
@@ -96,7 +94,7 @@ class EditSinif extends EditRecord
                 ->label('Öğretmen Çıkar')
                 ->icon('heroicon-o-user-minus')
                 ->color('danger')
-                ->visible($isYonetici)
+                ->visible($isAdmin)
                 ->form([
                     Select::make('ogretmen_id')
                         ->label('Öğretmen')
@@ -114,7 +112,7 @@ class EditSinif extends EditRecord
                 }),
 
             DeleteAction::make()
-                ->visible($isYonetici),
+                ->visible($isAdmin),
         ];
     }
 }

@@ -47,14 +47,14 @@ class OgrencisTable
                         $data = json_decode($record->qr_token, true);
                         return $data['password'] ?? '—';
                     })
-                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false),
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false),
                 TextColumn::make('qr_svg')
                     ->label('QR Kod')
                     ->formatStateUsing(fn ($state) => $state
                         ? '<div style="width:72px;height:72px;overflow:hidden">' . $state . '</div>'
                         : '—')
                     ->html()
-                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false),
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false),
                 TextColumn::make('created_at')
                     ->label('Kayıt Tarihi')
                     ->dateTime()
@@ -172,7 +172,7 @@ class OgrencisTable
                 Action::make('generate_qr')
                     ->label('QR Kod Oluştur')
                     ->icon('heroicon-o-qr-code')
-                    ->visible(fn ($record) => (auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false) && (empty($record->qr_token) || empty($record->qr_svg)))
+                    ->visible(fn ($record) => (auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false) && (empty($record->qr_token) || empty($record->qr_svg)))
                     ->action(function (Ogrenci $record) {
                         $record->loadMissing('user');
                         if (!$record->user) {
@@ -204,18 +204,18 @@ class OgrencisTable
                     ->icon('heroicon-o-printer')
                     ->url(fn ($record) => route('ogrenci.yaka-karti', $record))
                     ->openUrlInNewTab()
-                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false),
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false),
                 EditAction::make()
-                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false),
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false),
                 DeleteAction::make()
-                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false),
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     BulkAction::make('generate_qr_bulk')
                         ->label('Toplu QR Kod Oluştur')
                         ->icon('heroicon-o-qr-code')
-                        ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false)
+                        ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false)
                         ->action(function (Collection $records) {
                             $updated = 0;
                             foreach ($records as $record) {
@@ -245,13 +245,13 @@ class OgrencisTable
                     BulkAction::make('print_badges')
                         ->label('Toplu Yaka Kartı')
                         ->icon('heroicon-o-printer')
-                        ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false)
+                        ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false)
                         ->action(function (Collection $records) {
                             $ids = $records->pluck('id')->implode(',');
                             return redirect()->route('ogrenci.yaka-karti.bulk', ['ids' => $ids]);
                         }),
                     DeleteBulkAction::make()
-                        ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false),
+                        ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false),
                     BulkAction::make('reset_passwords')
                         ->label('Toplu Şifre Sıfırla')
                         ->icon('heroicon-o-key')

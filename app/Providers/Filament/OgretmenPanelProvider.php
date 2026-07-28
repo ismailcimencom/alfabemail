@@ -33,6 +33,12 @@ class OgretmenPanelProvider extends PanelProvider
                 fn () => Blade::render('<a href="{{ route(\'home\') }}" style="display:inline-block; margin-bottom: 20px; color: #7fa7ff; text-decoration: none; font-weight: bold;">← Ana Sayfa</a>'),
             )
             ->renderHook(
+                PanelsRenderHook::BODY_START,
+                fn () => auth()->check() && !auth()->user()->is_active && auth()->user()->hasRole('ogretmen')
+                    ? view('partials.onay-bekleniyor')->render()
+                    : '',
+            )
+            ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn () => view('partials.hata-bildir')->render(),
             )
@@ -46,22 +52,20 @@ class OgretmenPanelProvider extends PanelProvider
                 'primary' => Color::Blue,
                 'gray' => Color::Slate,
             ])
-            ->brandName(fn () => auth()->user()?->bagli_okul?->ad
-                ?? auth()->user()?->ogrenci?->sinif?->okul?->ad
-                ?? auth()->user()?->veli?->ogrenciler?->first()?->sinif?->okul?->ad
-                ?? 'ALFABE Öğretmen Paneli')
+            ->brandName('ALFABE Öğretmen Paneli')
             ->favicon(asset('favicon.png'))
             ->discoverResources(in: app_path('Filament/Portal/Resources'), for: 'App\Filament\Portal\Resources')
             ->resources([
                 \App\Filament\Portal\Resources\Sinifs\SinifResource::class,
                 \App\Filament\Portal\Resources\Ogrencis\OgrenciResource::class,
+                \App\Filament\Portal\Resources\Ogretmenler\OgretmenlerResource::class,
+                \App\Filament\Portal\Resources\HaftalikProgramlar\HaftalikProgramResource::class,
             ])
             ->discoverPages(in: app_path('Filament/Portal/Pages'), for: 'App\Filament\Portal\Pages')
             ->pages([
                 PortalDashboard::class,
             ])
             ->widgets([
-                \App\Filament\Portal\Widgets\PortalStatsOverview::class,
                 \App\Filament\Portal\Widgets\OgrenciIstatistikKartlariWidget::class,
                 \App\Filament\Portal\Widgets\OgrenciIstatistikWidget::class,
                 \App\Filament\Portal\Widgets\HaftalikProgramWidget::class,
@@ -79,7 +83,7 @@ class OgretmenPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                \App\Http\Middleware\EnsureUserHasRole::class . ':ogretmen,yonetici,admin',
+                \App\Http\Middleware\EnsureUserHasRole::class . ':ogretmen,admin',
             ]);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
-use App\Models\Okul;
 use App\Models\Veli;
 use App\Services\ActivityLogger;
 use Filament\Actions\DeleteAction;
@@ -55,15 +54,6 @@ class EditUser extends EditRecord
 
     protected function afterSave(): void
     {
-        if ($this->record->hasRole('yonetici')) {
-            $okulId = $this->form->getState()['okul_id'] ?? null;
-            if ($okulId) {
-                Okul::where('id', $okulId)->update(['yonetici_user_id' => $this->record->id]);
-            } elseif ($this->record->okul) {
-                Okul::where('yonetici_user_id', $this->record->id)->update(['yonetici_user_id' => null]);
-            }
-        }
-
         if ($this->record->hasRole('ogretmen')) {
             $this->record->ogretmen_sinifler_pivot()->sync($this->ogretmenSinifIds);
         }

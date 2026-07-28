@@ -37,7 +37,7 @@ class OgrenciResource extends Resource
         if (!$user) return false;
         
         $roles = $user->roles()->pluck('name')->toArray();
-        return in_array('admin', $roles) || in_array('yonetici', $roles) || in_array('ogretmen', $roles);
+        return in_array('admin', $roles) || in_array('ogretmen', $roles);
     }
 
     public static function canCreate(): bool
@@ -46,7 +46,7 @@ class OgrenciResource extends Resource
         if (!$user) return false;
         
         $roles = $user->roles()->pluck('name')->toArray();
-        return in_array('admin', $roles) || in_array('yonetici', $roles) || in_array('ogretmen', $roles);
+        return in_array('admin', $roles) || in_array('ogretmen', $roles);
     }
 
     public static function canEdit($record): bool
@@ -55,18 +55,13 @@ class OgrenciResource extends Resource
         if (!$user) return false;
         
         $roles = $user->roles()->pluck('name')->toArray();
-        return in_array('admin', $roles) || in_array('yonetici', $roles) || in_array('ogretmen', $roles);
+        return in_array('admin', $roles) || in_array('ogretmen', $roles);
     }
 
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
         $user = auth()->user();
-
-        if ($user?->hasRole('yonetici')) {
-            return $query->whereHas('sinif.okul', fn($q) => $q->where('yonetici_user_id', $user->id)
-                ->when($user->okul_id, fn($q) => $q->orWhere('id', $user->okul_id)));
-        }
 
         if ($user?->hasRole('ogretmen')) {
             return $query->whereHas('sinif', fn($q) => $q

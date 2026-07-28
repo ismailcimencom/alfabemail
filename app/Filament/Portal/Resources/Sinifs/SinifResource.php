@@ -30,45 +30,37 @@ class SinifResource extends Resource
     {
         $user = auth()->user();
         if (!$user) return false;
-        return $user->hasAnyRole(['admin', 'yonetici', 'ogretmen']);
+        return $user->hasAnyRole(['admin', 'ogretmen']);
     }
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function canEdit($record): bool
     {
         $user = auth()->user();
         if (!$user) return false;
-        if ($user->hasAnyRole(['admin', 'yonetici'])) return true;
+        if ($user->hasRole('admin')) return true;
         if ($user->hasRole('ogretmen')) {
-            return $record->okul_id === $user->okul_id;
+            return $record->ogretmenler()->where('users.id', $user->id)->exists();
         }
         return false;
     }
 
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery();
+        $query = parent::getEloquentQuery()->with('ogretmenler');
         $user = auth()->user();
 
         if ($user?->hasRole('ogretmen')) {
-            if ($user->okul_id) {
-                return $query->whereHas('okul', fn($q) => $q->where('id', $user->okul_id));
-            }
             return $query->whereHas('ogretmenler', fn($q) => $q->where('users.id', $user->id));
-        }
-
-        if ($user?->hasRole('yonetici')) {
-            return $query->whereHas('okul', fn($q) => $q->where('yonetici_user_id', $user->id)
-                ->when($user->okul_id, fn($q) => $q->orWhere('id', $user->okul_id)));
         }
 
         return $query;

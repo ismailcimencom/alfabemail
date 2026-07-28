@@ -10,7 +10,6 @@ class HaftalikProgram extends Model
     protected $table = 'haftalik_programlar';
 
     protected $fillable = [
-        'okul_id',
         'sinif_id',
         'gun',
         'baslangic',
@@ -25,21 +24,6 @@ class HaftalikProgram extends Model
             'baslangic' => 'datetime:H:i',
             'bitis' => 'datetime:H:i',
         ];
-    }
-
-    protected static function booted()
-    {
-        static::creating(function ($program) {
-            if (empty($program->okul_id)) {
-                $program->okul_id = auth()->user()?->okul?->id
-                    ?? Okul::where('yonetici_user_id', auth()->id())->first()?->id;
-            }
-        });
-    }
-
-    public function okul(): BelongsTo
-    {
-        return $this->belongsTo(Okul::class);
     }
 
     public function sinif(): BelongsTo

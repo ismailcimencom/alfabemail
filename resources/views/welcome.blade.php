@@ -138,10 +138,10 @@
 
     <div class="grid">
       <div class="left-col">
-        <article class="card manager">
-          <h2>🏫 Yönetici</h2>
-          <p>Okul yönetimi, sınıf ve öğretmen organizasyonu.</p>
-          <button onclick="go('/yonetici')">Yönetici Paneli</button>
+        <article class="card manager" style="opacity:0.6;pointer-events:none;">
+          <h2>🔐 EBA ile Giriş Yap</h2>
+          <p>EBA hesabınla hızlı ve güvenli giriş. (Çok yakında)</p>
+          <button style="cursor:not-allowed;">EBA ile Giriş Yap</button>
         </article>
         <article class="card teacher">
           <h2>🧑🏫 Öğretmen</h2>
@@ -182,7 +182,6 @@
         <ul>
           <li><a href="{{ url('/') }}">Ana Sayfa</a></li>
           <li><a href="{{ route('ogrenci.giris') }}">Öğrenci Girişi</a></li>
-          <li><a href="/yonetici">Yönetici Paneli</a></li>
           <li><a href="/ogretmen">Öğretmen Paneli</a></li>
           <li><a href="/veli">Veli Paneli</a></li>
           <li><a href="/admin">Admin Paneli</a></li>

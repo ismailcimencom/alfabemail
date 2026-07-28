@@ -17,10 +17,6 @@ class CreateOgretmen extends CreateRecord
 
     protected function mutateFormData(array $data): array
     {
-        $user = auth()->user();
-        $okul = $user?->okul;
-
-        $data['okul_id'] = $okul?->id;
         $data['name'] = explode('@', $data['email'])[0];
         $data['is_active'] = true;
 

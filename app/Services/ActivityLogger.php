@@ -91,7 +91,6 @@ class ActivityLogger
         $class = get_class($model);
         
         return match(true) {
-            str_contains($class, 'Okul') => 'okul',
             str_contains($class, 'Sinif') => 'sinif',
             str_contains($class, 'Ogrenci') => 'ogrenci',
             str_contains($class, 'User') => 'user',

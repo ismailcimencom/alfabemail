@@ -9,34 +9,30 @@ use Illuminate\Support\Facades\Auth;
 
 class OgrenciIstatistikWidget extends ChartWidget
 {
-    protected ?string $heading = 'Öğrenci Mail İstatistikleri';
+    protected static ?int $sort = 3;
+
+    protected int | string | array $columnSpan = 'full';
+
+    protected ?string $heading = 'Tüm Zamanlar Mail İstatistikleri';
 
     public static function canView(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     protected function getData(): array
     {
         $user = Auth::user();
-        $query = Ogrenci::query();
 
-        if ($user->hasRole('ogretmen')) {
-            $query->whereHas('sinif', fn($q) => $q->where('ogretmen_user_id', $user->id));
-        } elseif ($user->hasRole('yonetici')) {
-            $query->whereHas('sinif.okul', fn($q) => $q->where('yonetici_user_id', $user->id));
-        }
+        $ogrenciIds = $user->hasRole('ogretmen')
+            ? Ogrenci::whereHas('sinif', fn($q) => $q
+                ->where('ogretmen_user_id', $user->id)
+                ->orWhereHas('ogretmenler', fn($q2) => $q2->where('users.id', $user->id))
+            )->pluck('id')
+            : Ogrenci::pluck('id');
 
-        $ogrenciler = $query->with('user')->get();
-        $son7gun = now()->subDays(7);
-
-        $gonderilen = MailAktiviteLog::where('tip', 'gonderilen')
-            ->where('tarih', '>=', $son7gun)
-            ->count();
-
-        $alinan = MailAktiviteLog::where('tip', 'alinan')
-            ->where('tarih', '>=', $son7gun)
-            ->count();
+        $gonderilen = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)->where('tip', 'gonderilen')->count();
+        $alinan = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)->where('tip', 'alinan')->count();
 
         return [
             'datasets' => [
@@ -51,7 +47,7 @@ class OgrenciIstatistikWidget extends ChartWidget
                     'backgroundColor' => '#c4ffe7',
                 ],
             ],
-            'labels' => ['Son 7 Gün'],
+            'labels' => ['Tüm Zamanlar'],
         ];
     }
 

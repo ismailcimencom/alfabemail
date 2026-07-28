@@ -51,7 +51,6 @@ class ActivityLogObserver
     private function getModule($model): ?string
     {
         return match(true) {
-            $model instanceof \App\Models\Okul => 'okul',
             $model instanceof \App\Models\Sinif => 'sinif',
             $model instanceof \App\Models\Ogrenci => 'ogrenci',
             $model instanceof \App\Models\User => 'user',

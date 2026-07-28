@@ -3,7 +3,6 @@
 namespace App\Filament\Portal\Resources\Sinifs\Pages;
 
 use App\Filament\Portal\Resources\Sinifs\SinifResource;
-use App\Models\Okul;
 use App\Services\ActivityLogger;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;
@@ -16,7 +15,7 @@ class CreateSinif extends CreateRecord
     public function mount(): void
     {
         $user = auth()->user();
-        if (!$user || !$user->hasAnyRole(['admin', 'yonetici', 'ogretmen'])) {
+        if (!$user || !$user->hasAnyRole(['admin', 'ogretmen'])) {
             $this->redirect(SinifResource::getUrl('index'));
             return;
         }
@@ -29,25 +28,6 @@ class CreateSinif extends CreateRecord
         $user = auth()->user();
         $sinif = $this->record;
         $ogretmenler = $this->data['ogretmenler'] ?? [];
-
-        if ($sinif->okul) {
-            if ($user->hasAnyRole(['admin', 'yonetici'])) {
-                $okul = $sinif->okul;
-                if (!$okul->yonetici_user_id) {
-                    $okul->yonetici_user_id = $user->id;
-                    $okul->save();
-                }
-                if (!$user->okul_id) {
-                    $user->okul_id = $okul->id;
-                    $user->save();
-                }
-            }
-
-            if ($user->hasRole('ogretmen') && !$user->okul_id) {
-                $user->okul_id = $sinif->okul->id;
-                $user->save();
-            }
-        }
 
         if ($user->hasRole('ogretmen')) {
             $ogretmenler[] = $user->id;
@@ -64,24 +44,11 @@ class CreateSinif extends CreateRecord
     {
         $user = auth()->user();
 
-        if ($user->hasAnyRole(['admin', 'yonetici'])) {
-            if (!isset($data['okul_id']) || empty($data['okul_id'])) {
-                $okul = Okul::where('yonetici_user_id', $user->id)->first();
-                $data['okul_id'] = $okul?->id;
-                if (!$data['okul_id']) {
-                    Notification::make()
-                        ->title('Hata')
-                        ->body('Bu yöneticiye ait okul bulunamadı.')
-                        ->danger()
-                        ->send();
-                    $this->halt();
-                }
-            }
+        if ($user->hasRole('admin')) {
             $data['durum'] = 'aktif';
         }
 
         if ($user->hasRole('ogretmen')) {
-            $data['okul_id'] = $user->okul_id;
             $data['durum'] = 'beklemede';
         }
 

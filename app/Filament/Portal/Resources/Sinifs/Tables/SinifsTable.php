@@ -31,10 +31,13 @@ class SinifsTable
                         'beklemede' => 'Onay Bekliyor',
                         default => $state,
                     }),
-                TextColumn::make('ogretmenler.name')
+                TextColumn::make('ogretmenler')
                     ->label('Öğretmenler')
-                    ->badge()
-                    ->limitList(3),
+                    ->getStateUsing(fn ($record): string => $record->ogretmenler->map(fn ($o) =>
+                        '<div style="padding:2px 0">' . e($o->name) . '<br><span style="font-size:0.85em;color:var(--gray-500)">'
+                        . e($o->email) . ($o->phone ? ' · ' . e($o->phone) : '') . '</span></div>'
+                    )->implode(''))
+                    ->html(),
                 TextColumn::make('ogrenciler_count')
                     ->label('Öğrenci Sayısı')
                     ->counts('ogrenciler'),

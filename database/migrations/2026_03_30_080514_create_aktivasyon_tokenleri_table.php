@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('token')->unique();
-            $table->string('tip'); // e.g. 'bayi', 'yonetici', 'ogretmen'
+            $table->string('tip'); // e.g. 'ogretmen'
             $table->timestamp('expires_at');
             $table->timestamp('kullanildi_at')->nullable();
             $table->timestamps();

@@ -13,8 +13,7 @@ class SinifForm
     public static function configure(Schema $schema): Schema
     {
         $user = auth()->user();
-        $isYonetici = $user?->hasAnyRole(['admin', 'yonetici']) ?? false;
-        $isOgretmen = $user?->hasRole('ogretmen') ?? false;
+        $isAdmin = $user?->hasRole('admin') ?? false;
 
         return $schema
             ->columns(12)
@@ -25,7 +24,7 @@ class SinifForm
                     ->required()
                     ->maxLength(255)
                     ->columnSpan(12)
-                    ->disabled(!$isYonetici),
+                    ->disabled(!$isAdmin),
 
                 TextInput::make('ad')
                     ->label('Sınıf Adı')
@@ -33,16 +32,7 @@ class SinifForm
                     ->required()
                     ->maxLength(255)
                     ->columnSpan(12)
-                    ->visible($isOgretmen),
-
-                Select::make('okul_id')
-                    ->label('Okul')
-                    ->relationship('okul', 'ad')
-                    ->required()
-                    ->default(fn () => auth()->user()?->okul?->id ?? auth()->user()?->bagli_okul?->id)
-                    ->columnSpan(12)
-                    ->disabled(!$isYonetici)
-                    ->visible($isYonetici),
+                    ->visible(!$isAdmin),
 
                 Select::make('ogretmenler')
                     ->label('Öğretmenler')
@@ -52,7 +42,7 @@ class SinifForm
                     })
                     ->multiple()
                     ->searchable()
-                    ->visible($isYonetici)
+                    ->visible($isAdmin)
                     ->columnSpan(12),
 
                 Select::make('durum')
@@ -62,7 +52,7 @@ class SinifForm
                         'beklemede' => 'Beklemede',
                     ])
                     ->default('aktif')
-                    ->visible($isYonetici)
+                    ->visible($isAdmin)
                     ->columnSpan(12),
 
                 Repeater::make('sinif_ogretmenleri')

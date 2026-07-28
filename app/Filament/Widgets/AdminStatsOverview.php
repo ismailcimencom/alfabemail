@@ -2,7 +2,6 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Okul;
 use App\Models\Ogrenci;
 use App\Models\User;
 use App\Services\MailcowService;
@@ -28,10 +27,6 @@ class AdminStatsOverview extends BaseWidget
             ->count();
 
         return [
-            Stat::make('Toplam Okul', Okul::count())
-                ->description('Kayıtlı eğitim kurumları')
-                ->descriptionIcon('heroicon-m-academic-cap')
-                ->color('primary'),
             Stat::make('Toplam Öğretmen', $ogretmenSayisi)
                 ->description('Sistemdeki öğretmen sayısı')
                 ->descriptionIcon('heroicon-m-user-group')

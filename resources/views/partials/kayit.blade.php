@@ -6,7 +6,7 @@
     <div id="kayitStep1">
       <div style="font-size:40px;text-align:center;margin-bottom:4px;">🐧</div>
       <h3 style="text-align:center;margin:0 0 4px;font-size:20px;color:#1a202c;">Hesap Oluştur</h3>
-      <p style="text-align:center;color:#6586a7;margin:0 0 20px;font-size:14px;">Çocuğunuza eposta açabilmemiz için önce kişisel eposta adresinle başla!</p>
+      <p style="text-align:center;color:#6586a7;margin:0 0 20px;font-size:14px;">Başlamak için e-posta adresini gir!</p>
       <div style="display:grid;gap:12px;">
         <input type="email" id="kayitEmail" placeholder="E-posta adresin" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
         <label style="font-size:13px;font-weight:600;color:#1a202c;">Telefon :</label>
@@ -38,10 +38,6 @@
       <h3 style="text-align:center;margin:0 0 4px;font-size:20px;color:#1a202c;">Hesap Türünü Seç</h3>
       <p style="text-align:center;color:#6586a7;margin:0 0 20px;font-size:14px;">Sana uygun olan rolü seç</p>
       <div style="display:grid;gap:10px;">
-        <div class="kayit-role-card" data-role="yonetici" onclick="kayitSelectRole('yonetici')" style="display:flex;align-items:center;gap:14px;padding:14px;border:2px solid #e2e8f0;border-radius:14px;cursor:pointer;transition:.2s;">
-          <span style="font-size:32px;">🏫</span>
-          <div><div style="font-weight:700;color:#1a202c;">Yönetici</div><div style="font-size:13px;color:#6586a7;">Okul yönetimi, sınıf ve öğretmen organizasyonu</div></div>
-        </div>
         <div class="kayit-role-card" data-role="ogretmen" onclick="kayitSelectRole('ogretmen')" style="display:flex;align-items:center;gap:14px;padding:14px;border:2px solid #e2e8f0;border-radius:14px;cursor:pointer;transition:.2s;">
           <span style="font-size:32px;">🧑‍🏫</span>
           <div><div style="font-weight:700;color:#1a202c;">Öğretmen</div><div style="font-size:13px;color:#6586a7;">Toplu öğrenci mail kaydı, sınıf süreç yönetimi</div></div>
@@ -203,8 +199,8 @@ async function kayitComplete() {
       document.getElementById('kayitStep4').style.display = 'none';
       document.getElementById('kayitSuccess').style.display = 'block';
       if (data.redirect) {
-        document.getElementById('kayitSuccessTitle').textContent = 'Yönetici hesabın oluşturuldu!';
-        document.getElementById('kayitSuccessText').textContent = 'Giriş sayfasına yönlendiriliyorsun...';
+        document.getElementById('kayitSuccessTitle').textContent = data.title || 'Kaydın alındı!';
+        document.getElementById('kayitSuccessText').textContent = data.message || 'Yönetici onayından sonra giriş yapabileceksin.';
         setTimeout(() => { location.href = data.redirect; }, 2000);
       } else {
         setTimeout(() => { location.href = '{{ request()->url() }}'; }, 3000);

@@ -13,20 +13,12 @@ class Sinif extends Model
     // use HasTenantScope;
     protected $table = 'siniflar';
     protected $fillable = [
-        'okul_id',
         'ad',
         'durum',
     ];
 
     protected static function booted()
     {
-        static::creating(function ($sinif) {
-            if (empty($sinif->okul_id)) {
-                $sinif->okul_id = auth()->user()?->okul?->id 
-                    ?? Okul::where('yonetici_user_id', auth()->id())->first()?->id;
-            }
-        });
-
         static::created(function ($sinif) {
             if (request()->has('ogretmenler') && is_array(request('ogretmenler'))) {
                 $sinif->ogretmenler()->sync(request('ogretmenler'));
@@ -37,11 +29,6 @@ class Sinif extends Model
     public function syncOgretmenler(array $ogretmenIds): void
     {
         $this->ogretmenler()->sync($ogretmenIds);
-    }
-
-    public function okul(): BelongsTo
-    {
-        return $this->belongsTo(Okul::class);
     }
 
     public function ogretmenler(): BelongsToMany

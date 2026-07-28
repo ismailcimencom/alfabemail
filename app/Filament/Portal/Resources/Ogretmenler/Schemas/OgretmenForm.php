@@ -14,7 +14,6 @@ class OgretmenForm
     {
         $user = auth()->user();
         $isAdmin = $user?->hasRole('admin') ?? false;
-        $userOkulId = $user?->okul?->id ?? $user?->bagli_okul?->id;
         $isEdit = request()->route('record') !== null;
 
         return $schema
@@ -40,20 +39,14 @@ class OgretmenForm
                 Select::make('sinif_ids')
                     ->label('Sınıflar')
                     ->multiple()
-                    ->options(fn () => $userOkulId ? Sinif::where('okul_id', $userOkulId)->pluck('ad', 'id') : [])
+                    ->options(fn () => Sinif::pluck('ad', 'id'))
                     ->searchable()
                     ->preload()
                     ->createOptionForm([
                         TextInput::make('ad')->label('Sınıf Adı')->required()->maxLength(255),
-                        \Filament\Forms\Components\Hidden::make('okul_id')
-                            ->default($userOkulId),
                     ])
                     ->createOptionUsing(function (array $data) {
-                        if (!$data['okul_id']) {
-                            Notification::make()->title('Okul bulunamadı')->warning()->send();
-                            return null;
-                        }
-                        return Sinif::create(['ad' => $data['ad'], 'okul_id' => $data['okul_id']])->id;
+                        return Sinif::create(['ad' => $data['ad']])->id;
                     })
                     ->createOptionModalHeading('Yeni Sınıf Oluştur'),
 

@@ -36,28 +36,28 @@ class HaftalikProgramResource extends Resource
         if (!SchemaFacade::hasTable('haftalik_programlar')) return false;
         $user = auth()->user();
         if (!$user) return false;
-        return $user->hasAnyRole(['admin', 'yonetici']);
+        return $user->hasAnyRole(['admin', 'ogretmen']);
     }
 
     public static function canAccess(): bool
     {
         if (!SchemaFacade::hasTable('haftalik_programlar')) return false;
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'yonetici']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false;
     }
 
     public static function form(Schema $schema): Schema
@@ -72,15 +72,7 @@ class HaftalikProgramResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery();
-        $user = auth()->user();
-
-        if ($user?->hasRole('yonetici')) {
-            return $query->whereHas('okul', fn($q) => $q->where('yonetici_user_id', $user->id)
-                ->when($user->okul_id, fn($q) => $q->orWhere('id', $user->okul_id)));
-        }
-
-        return $query;
+        return parent::getEloquentQuery();
     }
 
     public static function getPages(): array

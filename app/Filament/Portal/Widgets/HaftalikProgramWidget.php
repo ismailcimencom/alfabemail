@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Schema as SchemaFacade;
 
 class HaftalikProgramWidget extends TableWidget
 {
+    protected static ?int $sort = 2;
+
     protected int | string | array $columnSpan = 'full';
 
     public static function canView(): bool
@@ -18,7 +20,7 @@ class HaftalikProgramWidget extends TableWidget
 
         $user = auth()->user();
         if (!$user) return false;
-        return $user->hasAnyRole(['ogretmen', 'veli', 'yonetici', 'admin']);
+        return $user->hasAnyRole(['ogretmen', 'veli', 'admin']);
     }
 
     public function getHeading(): string
@@ -43,8 +45,6 @@ class HaftalikProgramWidget extends TableWidget
             if ($veli) {
                 $sinifIds = $veli->ogrenciler->pluck('sinif_id')->unique();
             }
-        } elseif ($user?->hasRole('yonetici')) {
-            $sinifIds = $user->okul?->siniflar->pluck('id') ?? collect();
         }
 
         $gunSirasi = ['pazartesi', 'sali', 'carsamba', 'persembe', 'cuma'];

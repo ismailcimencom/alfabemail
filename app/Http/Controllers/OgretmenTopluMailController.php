@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Okul;
 use App\Models\Sinif;
 use App\Models\User;
 use App\Models\Ogrenci;
@@ -149,24 +148,13 @@ class OgretmenTopluMailController extends Controller
         $schoolName = session('toplu_mail_ogretmen_school', 'Demo Okul');
         $phone = session('toplu_mail_ogretmen_phone');
 
-        $okul = Okul::firstOrCreate(
-            ['ad' => $schoolName],
-            [
-                'is_active' => true,
-                'durum' => 'onayli',
-                'ulke' => 'Türkiye',
-                'sehir' => 'Konya',
-            ]
-        );
-
         $sinifKodu = now()->format('Ymd');
         $sinif = Sinif::firstOrCreate(
-            ['okul_id' => $okul->id, 'ad' => $sinifKodu],
-            ['okul_id' => $okul->id]
+            ['ad' => $sinifKodu]
         );
 
         $results = [
-            'sinif' => ['id' => $sinif->id, 'ad' => $sinif->ad, 'okul' => $okul->ad],
+            'sinif' => ['id' => $sinif->id, 'ad' => $sinif->ad, 'okul' => $schoolName],
             'success' => [],
             'errors' => [],
         ];
@@ -227,7 +215,6 @@ class OgretmenTopluMailController extends Controller
             'phone' => $phone,
             'password' => Hash::make($teacherPassword),
             'is_active' => true,
-            'okul_id' => $okul->id,
         ]);
         $teacher->assignRole('ogretmen');
 

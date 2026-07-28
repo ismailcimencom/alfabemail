@@ -50,7 +50,6 @@ class ActivityLogResource extends Resource
                     ->badge()
                     ->color(fn (string $state): string => match($state) {
                         'admin' => 'warning',
-                        'yonetici' => 'success',
                         'ogretmen' => 'primary',
                         'veli' => 'gray',
                         default => 'gray',
@@ -81,7 +80,6 @@ class ActivityLogResource extends Resource
                 SelectFilter::make('module')
                     ->label('Modül')
                     ->options([
-                        'okul' => 'Okul',
                         'sinif' => 'Sınıf',
                         'ogrenci' => 'Öğrenci',
                         'user' => 'Kullanıcı',
@@ -101,7 +99,6 @@ class ActivityLogResource extends Resource
                     ->label('Rol')
                     ->options([
                         'admin' => 'Admin',
-                        'yonetici' => 'Yönetici',
                         'ogretmen' => 'Öğretmen',
                     ]),
                 SelectFilter::make('tarih')

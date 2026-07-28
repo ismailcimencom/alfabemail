@@ -44,10 +44,6 @@ class ListOgrencis extends ListRecords
                                 return Sinif::whereHas('ogretmenler', fn($q) => $q->where('users.id', $user->id))
                                     ->pluck('ad', 'id');
                             }
-                            if ($user?->hasRole('yonetici')) {
-                                return Sinif::whereHas('okul', fn($q) => $q->where('yonetici_user_id', $user->id))
-                                    ->pluck('ad', 'id');
-                            }
                             return Sinif::pluck('ad', 'id');
                         })
                         ->searchable()
@@ -91,7 +87,7 @@ class ListOgrencis extends ListRecords
                 ->label('Sınıf Yaka Kartları')
                 ->icon('heroicon-o-printer')
                 ->color('warning')
-                ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'yonetici', 'ogretmen']) ?? false)
+                ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false)
                 ->modalHeading('Sınıf Seç')
                 ->modalDescription('Yaka kartı basmak istediğiniz sınıfı seçin.')
                 ->modalSubmitActionLabel('Yaka Kartlarını Göster')
@@ -102,11 +98,6 @@ class ListOgrencis extends ListRecords
                             $user = auth()->user();
                             if ($user?->hasRole('ogretmen')) {
                                 return Sinif::whereHas('ogretmenler', fn($q) => $q->where('users.id', $user->id))
-                                    ->pluck('ad', 'id');
-                            }
-                            if ($user?->hasRole('yonetici')) {
-                                return Sinif::whereHas('okul', fn($q) => $q->where('yonetici_user_id', $user->id)
-                                    ->orWhere('id', $user->okul_id))
                                     ->pluck('ad', 'id');
                             }
                             return Sinif::pluck('ad', 'id');
@@ -135,6 +126,7 @@ class ListOgrencis extends ListRecords
                 ->modalDescription('Mailcow\'da olup sistemde olmayan tüm mailbox\'lar öğrenci olarak içe aktarılır. Sistem mailbox\'ları (admin, info, vb.) atlanır.')
                 ->modalSubmitActionLabel('Senkronize Et')
                 ->action(function () {
+                    set_time_limit(0);
                     try {
                         $mailcow = app(MailcowService::class);
                         if (!$mailcow->isConfigured()) {
@@ -151,7 +143,7 @@ class ListOgrencis extends ListRecords
 
                         $systemLocalParts = [
                             'admin', 'info', 'iletisim', 'noreply', 'postmaster',
-                            'ogrenci', 'ogretmen', 'yonetici', 'deneme', 'test',
+                            'ogrenci', 'ogretmen', 'deneme', 'test',
                             'dmarc', 'spam', 'abuse', 'support', 'mailer-daemon',
                         ];
 

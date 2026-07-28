@@ -37,7 +37,7 @@ class OdevResource extends Resource
         if (!$user) return false;
 
         $roles = $user->roles()->pluck('name')->toArray();
-        return in_array('admin', $roles) || in_array('ogretmen', $roles) || in_array('yonetici', $roles);
+        return in_array('admin', $roles) || in_array('ogretmen', $roles);
     }
 
     public static function canCreate(): bool
@@ -74,11 +74,6 @@ class OdevResource extends Resource
 
         if ($user?->hasRole('ogretmen')) {
             return $query->where('ogretmen_id', $user->id);
-        }
-
-        if ($user?->hasRole('yonetici')) {
-            return $query->whereHas('sinif.okul', fn($q) => $q->where('yonetici_user_id', $user->id)
-                ->when($user->okul_id, fn($q) => $q->orWhere('id', $user->okul_id)));
         }
 
         return $query;

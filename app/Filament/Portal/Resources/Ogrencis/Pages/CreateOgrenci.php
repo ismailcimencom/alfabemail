@@ -285,13 +285,11 @@ class CreateOgrenci extends CreateRecord
     protected function afterCreate(): void
     {
         $sinif = $this->record->sinif;
-        $okul = $sinif?->okul;
         $ogretmen = auth()->user();
         
         \App\Services\ActivityLogger::created($this->record, 
             'Öğrenci eklendi: ' . $this->record->user?->name . 
             ' - Sınıf: ' . ($sinif?->ad ?? 'Belirsiz') .
-            ' - Okul: ' . ($okul?->ad ?? 'Belirsiz') .
             ' - Öğretmen: ' . ($ogretmen?->name ?? 'Belirsiz')
         );
     }

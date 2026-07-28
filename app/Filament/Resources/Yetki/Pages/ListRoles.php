@@ -32,7 +32,6 @@ class ListRoles extends BaseListRecords
                     ->searchable()
                     ->formatStateUsing(fn ($state) => match ($state) {
                         'admin' => '🔧 Admin',
-                        'yonetici' => '🏫 Yönetici',
                         'ogretmen' => '🧑‍🏫 Öğretmen',
                         'veli' => '👨‍👩‍👧 Veli',
                         'ogrenci' => '🎒 Öğrenci',
@@ -77,7 +76,6 @@ class ListRoles extends BaseListRecords
     {
         return match ($name) {
             'admin' => '🔧 Admin',
-            'yonetici' => '🏫 Yönetici',
             'ogretmen' => '🧑‍🏫 Öğretmen',
             'veli' => '👨‍👩‍👧 Veli',
             'ogrenci' => '🎒 Öğrenci',

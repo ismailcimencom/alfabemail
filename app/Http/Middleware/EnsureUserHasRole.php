@@ -23,7 +23,6 @@ class EnsureUserHasRole
         $user = auth()->user();
 
         if ($user->hasRole('admin')) return redirect('/admin');
-        if ($user->hasRole('yonetici')) return redirect('/yonetici');
         if ($user->hasRole('ogretmen')) return redirect('/ogretmen');
         if ($user->hasRole('veli')) return redirect('/veli');
 

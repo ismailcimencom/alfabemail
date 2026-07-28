@@ -14,7 +14,6 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            'okul.view', 'okul.create', 'okul.edit', 'okul.delete',
             'sinif.view', 'sinif.create', 'sinif.edit', 'sinif.delete',
             'ogretmen.view', 'ogretmen.create', 'ogretmen.edit', 'ogretmen.delete',
             'ogrenci.view', 'ogrenci.create', 'ogrenci.edit', 'ogrenci.delete',
@@ -29,16 +28,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $admin->syncPermissions([
-            'okul.view', 'okul.create', 'okul.edit',
-            'ogretmen.view', 'ogretmen.create', 'ogretmen.edit',
-            'aktivasyon.send', 'rapor.view', 'rapor.export', 'ayar.manage',
-        ]);
-
-        $yonetici = Role::firstOrCreate(['name' => 'yonetici']);
-        $yonetici->syncPermissions([
             'sinif.view', 'sinif.create', 'sinif.edit', 'sinif.delete',
             'ogretmen.view', 'ogretmen.create', 'ogretmen.edit',
-            'aktivasyon.send', 'rapor.view',
+            'aktivasyon.send', 'rapor.view', 'rapor.export', 'ayar.manage',
         ]);
 
         $ogretmen = Role::firstOrCreate(['name' => 'ogretmen']);
