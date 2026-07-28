@@ -140,8 +140,6 @@ Route::prefix('ogretmen')->group(function () {
     Route::get('/toplu-mail-ac', [OgretmenTopluMailController::class, 'showForm'])->name('ogretmen.toplu-mail.form');
     Route::post('/toplu-mail-ac/send-code', [OgretmenTopluMailController::class, 'sendCode'])->name('ogretmen.toplu-mail.send-code');
     Route::post('/toplu-mail-ac/verify-code', [OgretmenTopluMailController::class, 'verifyCode'])->name('ogretmen.toplu-mail.verify-code');
-    Route::get('/toplu-mail-ac/sifre-belirle', [OgretmenTopluMailController::class, 'showPasswordForm'])->name('ogretmen.toplu-mail.sifre-belirle');
-    Route::post('/toplu-mail-ac/sifre-belirle', [OgretmenTopluMailController::class, 'setPassword'])->name('ogretmen.toplu-mail.set-password');
 });
 
 // Hata bildir
