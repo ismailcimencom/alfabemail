@@ -28,6 +28,7 @@ class OgretmenTopluMailController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
             'school' => 'nullable|string|max:255',
+            'name' => 'nullable|string|max:255',
             'students' => 'required|array|min:1',
             'students.*.ad' => 'required|string|max:100',
             'students.*.soyad' => 'required|string|max:100',
@@ -45,6 +46,7 @@ class OgretmenTopluMailController extends Controller
             ['status' => 'pending']
         );
 
+        $pending->name = $request->name;
         $pending->verification_code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $pending->verification_code_sent_at = now();
         $pending->save();
@@ -56,6 +58,7 @@ class OgretmenTopluMailController extends Controller
         }
 
         session(['toplu_mail_ogretmen_email' => $email]);
+        session(['toplu_mail_ogretmen_name' => $request->name]);
         session(['toplu_mail_ogretmen_phone' => $request->phone]);
         session(['toplu_mail_ogretmen_school' => $request->school]);
         session(['toplu_mail_students' => $request->students]);
@@ -134,7 +137,7 @@ class OgretmenTopluMailController extends Controller
         $teacher->password = Hash::make($request->password);
         $teacher->save();
 
-        session()->forget(['toplu_mail_ogretmen_email', 'toplu_mail_ogretmen_phone', 'toplu_mail_ogretmen_school', 'toplu_mail_students', 'toplu_mail_results']);
+        session()->forget(['toplu_mail_ogretmen_email', 'toplu_mail_ogretmen_name', 'toplu_mail_ogretmen_phone', 'toplu_mail_ogretmen_school', 'toplu_mail_students', 'toplu_mail_results']);
 
         return response()->json([
             'success' => true,
@@ -209,8 +212,9 @@ class OgretmenTopluMailController extends Controller
         }
 
         $teacherPassword = Str::random(16);
+        $teacherName = session('toplu_mail_ogretmen_name', explode('@', $teacherEmail)[0]);
         $teacher = User::create([
-            'name' => explode('@', $teacherEmail)[0],
+            'name' => $teacherName,
             'email' => $teacherEmail,
             'phone' => $phone,
             'password' => Hash::make($teacherPassword),

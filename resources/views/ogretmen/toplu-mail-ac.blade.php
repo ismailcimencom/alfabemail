@@ -46,6 +46,11 @@
     {{-- Step 1: Teacher email + student list --}}
     <div class="step active" id="step1">
       <div class="field">
+        <label>Öğretmen Ad Soyad</label>
+        <input type="text" id="ogretmenName" placeholder="Adın Soyadın" />
+      </div>
+
+      <div class="field">
         <label>E-posta Adresiniz</label>
         <input type="email" id="ogretmenEmail" placeholder="ornek@mail.com" />
         <div class="error" id="emailError"></div>
@@ -57,8 +62,8 @@
       </div>
 
       <div class="field">
-        <label>Okul Adı</label>
-        <input type="text" id="ogretmenSchool" placeholder="Okulunuzun adı" />
+        <label>Sınıf Adı</label>
+        <input type="text" id="ogretmenSchool" placeholder="Sınıfınızın adı" />
       </div>
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
@@ -158,9 +163,11 @@
       hideError('emailError');
       hideError('studentsError');
 
+      const name = document.getElementById('ogretmenName').value.trim();
       const email = document.getElementById('ogretmenEmail').value.trim();
       const phone = document.getElementById('ogretmenPhone').value.trim();
       const school = document.getElementById('ogretmenSchool').value.trim();
+      if (!name) { showError('emailError', 'Adınızı soyadınızı girin.'); return; }
       if (!email) { showError('emailError', 'E-posta adresinizi girin.'); return; }
 
       const students = getStudents();
@@ -173,7 +180,7 @@
         const res = await fetch('{{ route("ogretmen.toplu-mail.send-code") }}', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-          body: JSON.stringify({ email, phone, school, students })
+          body: JSON.stringify({ name, email, phone, school, students })
         });
         const data = await res.json();
         if (data.success) {
@@ -214,6 +221,7 @@
     }
 
     async function resendCode() {
+      const name = document.getElementById('ogretmenName').value.trim();
       const email = document.getElementById('ogretmenEmail').value.trim();
       const phone = document.getElementById('ogretmenPhone').value.trim();
       const school = document.getElementById('ogretmenSchool').value.trim();
@@ -224,7 +232,7 @@
         await fetch('{{ route("ogretmen.toplu-mail.send-code") }}', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-          body: JSON.stringify({ email, phone, school, students })
+          body: JSON.stringify({ name, email, phone, school, students })
         });
       } catch (e) {}
       document.getElementById('codeSentText').textContent = 'Kod tekrar ' + email + ' adresine gönderildi.';
