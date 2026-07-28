@@ -18,6 +18,7 @@ class KayitController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:20',
             'school' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
         ]);
 
         $email = $request->email;
@@ -42,6 +43,7 @@ class KayitController extends Controller
 
         $data = [
             'email' => $email,
+            'name' => $request->name,
             'phone' => $request->phone,
             'school' => $request->school,
             'verification_code' => $code,
@@ -130,7 +132,7 @@ class KayitController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
+            'name' => $request->name ?: $pending->name,
             'email' => $request->email,
             'phone' => $pending->phone,
             'password' => Hash::make($request->password),

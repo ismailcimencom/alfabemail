@@ -8,11 +8,13 @@
       <h3 style="text-align:center;margin:0 0 4px;font-size:20px;color:#1a202c;">Hesap Oluştur</h3>
       <p style="text-align:center;color:#6586a7;margin:0 0 20px;font-size:14px;">Başlamak için e-posta adresini gir!</p>
       <div style="display:grid;gap:12px;">
+        <label style="font-size:13px;font-weight:600;color:#1a202c;">Öğretmen Ad Soyad :</label>
+        <input type="text" id="kayitName" placeholder="Adın Soyadın" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
         <input type="email" id="kayitEmail" placeholder="E-posta adresin" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
         <label style="font-size:13px;font-weight:600;color:#1a202c;">Telefon :</label>
         <input type="tel" id="kayitPhone" placeholder="Telefon numaran" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
-        <label style="font-size:13px;font-weight:600;color:#1a202c;">Okul Adı :</label>
-        <input type="text" id="kayitSchool" placeholder="Okul adı" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
+        <label style="font-size:13px;font-weight:600;color:#1a202c;">Sınıf Adı :</label>
+        <input type="text" id="kayitSchool" placeholder="Sınıf adı" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
         <div id="kayitEmailError" style="color:#ef4444;font-size:13px;display:none;"></div>
         <button type="button" onclick="kayitSendCode()" id="kayitBtn1" style="background:#5e8df7;color:#fff;border:none;border-radius:999px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;">Doğrulama Kodu Gönder</button>
       </div>
@@ -50,13 +52,12 @@
       </div>
     </div>
 
-    {{-- Step 4: Name + Password + Role-specific --}}
+    {{-- Step 4: Password + Role-specific --}}
     <div id="kayitStep4" style="display:none;">
-      <div style="font-size:40px;text-align:center;margin-bottom:4px;">✍️</div>
-      <h3 style="text-align:center;margin:0 0 4px;font-size:20px;color:#1a202c;">Bilgilerini Gir</h3>
-      <p style="text-align:center;color:#6586a7;margin:0 0 20px;font-size:14px;">Kaydını tamamlamak için bilgilerini doldur</p>
+      <div style="font-size:40px;text-align:center;margin-bottom:4px;">🔑</div>
+      <h3 style="text-align:center;margin:0 0 4px;font-size:20px;color:#1a202c;">Şifre Belirle</h3>
+      <p style="text-align:center;color:#6586a7;margin:0 0 20px;font-size:14px;" id="kayitStep4Desc">Hesabın için bir şifre belirle</p>
       <div style="display:grid;gap:12px;">
-        <input type="text" id="kayitName" placeholder="Adın Soyadın" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
         <div id="kayitRoleFields"></div>
         <input type="password" id="kayitPassword" placeholder="Şifre (en az 6 karakter)" minlength="6" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
         <input type="password" id="kayitPasswordConfirm" placeholder="Şifre Tekrar" style="padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;width:100%;color:#1a202c;">
@@ -101,19 +102,21 @@ function kayitSelectRole(role) {
 
 async function kayitSendCode() {
   kayitClearErrors();
+  const name = document.getElementById('kayitName').value.trim();
   const email = document.getElementById('kayitEmail').value.trim();
   const phone = document.getElementById('kayitPhone').value.trim();
   const school = document.getElementById('kayitSchool').value.trim();
+  if (!name) { kayitShowError('kayitEmailError', 'Adını soyadını gir.'); return; }
   if (!email) { kayitShowError('kayitEmailError', 'E-posta adresini gir.'); return; }
   if (!phone) { kayitShowError('kayitEmailError', 'Telefon numaranı gir.'); return; }
-  if (!school) { kayitShowError('kayitEmailError', 'Okul adını gir.'); return; }
+  if (!school) { kayitShowError('kayitEmailError', 'Sınıf adını gir.'); return; }
   const btn = document.getElementById('kayitBtn1');
   btn.disabled = true; btn.textContent = 'Gönderiliyor...';
   try {
     const res = await fetch('{{ route("kayit.send-code") }}', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-      body: JSON.stringify({ email, phone, school })
+      body: JSON.stringify({ name, email, phone, school })
     });
     const data = await res.json();
     if (data.success) {
@@ -177,8 +180,6 @@ setInterval(() => {
 async function kayitComplete() {
   kayitClearErrors();
   const name = document.getElementById('kayitName').value.trim();
-  const phone = document.getElementById('kayitPhone').value.trim();
-  const school = document.getElementById('kayitSchool').value.trim();
   const password = document.getElementById('kayitPassword').value;
   const passwordConfirm = document.getElementById('kayitPasswordConfirm').value;
   if (!kayitRole) { kayitShowError('kayitCompleteError', 'Lütfen önce rol seç.'); return; }

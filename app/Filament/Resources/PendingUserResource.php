@@ -46,7 +46,7 @@ class PendingUserResource extends Resource
                 TextInput::make('name')->label('Ad Soyad')->disabled(),
                 TextInput::make('email')->label('E-posta')->disabled(),
                 TextInput::make('phone')->label('Telefon')->disabled(),
-                TextInput::make('school')->label('Okul')->disabled(),
+                TextInput::make('school')->label('Sınıf')->disabled(),
                 DateTimePicker::make('email_verified_at')->label('E-posta Doğrulama')->disabled(),
                 TextInput::make('status')->label('Durum')->disabled(),
                 DateTimePicker::make('created_at')->label('Kayıt Tarihi')->disabled(),
@@ -62,7 +62,7 @@ class PendingUserResource extends Resource
                 TextColumn::make('name')->label('Ad Soyad')->searchable()->placeholder('—'),
                 TextColumn::make('email')->label('E-posta')->searchable(),
                 TextColumn::make('phone')->label('Telefon')->searchable()->placeholder('—'),
-                TextColumn::make('school')->label('Okul')->searchable()->placeholder('—'),
+                TextColumn::make('school')->label('Sınıf')->searchable()->placeholder('—'),
                 IconColumn::make('email_verified_at')->label('Doğrulandı')->boolean()
                     ->trueIcon('heroicon-o-check-badge')->falseIcon('heroicon-o-x-circle'),
                 TextColumn::make('assigned_role')->label('Rol')->badge()

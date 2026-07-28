@@ -3,6 +3,7 @@
 namespace App\Filament\Portal\Resources\Ogrencis\Pages;
 
 use App\Filament\Portal\Resources\Ogrencis\OgrenciResource;
+use App\Filament\Portal\Widgets\OgrenciListeRehberWidget;
 use App\Models\Ogrenci;
 use App\Models\Sinif;
 use App\Models\User;
@@ -19,6 +20,13 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class ListOgrencis extends ListRecords
 {
     protected static string $resource = OgrenciResource::class;
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            OgrenciListeRehberWidget::class,
+        ];
+    }
 
     protected function getHeaderActions(): array
     {
