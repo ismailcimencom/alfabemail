@@ -25,35 +25,21 @@
     .back-link:hover { color: #5e8df7; }
 
     .demo-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; border-radius: 12px;
-      background: #f8fafc; border: 1px solid #e2e8f0;
-      opacity: 0; transform: translateY(12px);
-      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; border-radius: 10px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 6px; opacity: 0.4; transition: all 0.5s ease;
     }
-    .demo-row .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
-    .demo-row .name { flex: 1; font-size: 14px; color: #1a202c; font-weight: 500; }
-    .demo-row .status { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .demo-row .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .demo-row .info { flex: 1; min-width: 0; }
+    .demo-row .info .name { font-size: 13px; font-weight: 600; color: #c7d2fe; }
+    .demo-row .info .mail { font-size: 11px; color: #6366f1; margin-top: 1px; }
+    .demo-row .status { font-size: 11px; font-weight: 600; white-space: nowrap; display: flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 999px; background: rgba(34,197,94,0.08); color: #22c55e; opacity: 0; transition: opacity 0.4s ease; }
 
-    @keyframes demoSlideIn {
-      0%   { opacity: 0; transform: translateY(12px); }
-      15%  { opacity: 1; transform: translateY(0); }
-      85%  { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-4px); }
-    }
-    @keyframes statusAppear {
-      0%   { opacity: 0; }
-      40%  { opacity: 0; }
-      50%  { opacity: 1; }
-      100% { opacity: 1; }
-    }
-    .demo-row:nth-child(1) { animation: demoSlideIn 4s ease-in-out infinite; animation-delay: 0s; }
-    .demo-row:nth-child(2) { animation: demoSlideIn 4s ease-in-out infinite; animation-delay: 1.3s; }
-    .demo-row:nth-child(3) { animation: demoSlideIn 4s ease-in-out infinite; animation-delay: 2.6s; }
-    .demo-row .status { animation: statusAppear 4s ease-in-out infinite; }
-    .demo-row:nth-child(1) .status { animation-delay: 0s; }
-    .demo-row:nth-child(2) .status { animation-delay: 1.3s; }
-    .demo-row:nth-child(3) .status { animation-delay: 2.6s; }
+    .demo-row.highlight { opacity: 1; border-color: rgba(129,140,248,0.3); background: rgba(129,140,248,0.08); }
+    .demo-row.highlight .status { opacity: 0; }
+    .demo-row.done { opacity: 1; border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.06); }
+    .demo-row.done .status { opacity: 1; }
   </style>
 </head>
 <body>
@@ -91,20 +77,29 @@
             <span style="font-size:10px;color:#22c55e;background:rgba(34,197,94,0.15);padding:3px 8px;border-radius:999px;font-weight:600;">CANLI</span>
             <span style="font-size:12px;color:#a5b4fc;">Öğrenci mailleri açılıyor...</span>
           </div>
-          <div class="demo-row">
+          <div class="demo-row" id="demo1">
             <div class="avatar" style="background:#818cf8;color:#fff;">A</div>
-            <span class="name">Ahmet Yılmaz</span>
-            <span class="status" style="color:#22c55e;">📬 Açıldı ✅</span>
+            <div class="info">
+              <div class="name">Ahmet Yılmaz</div>
+              <div class="mail">ahmet.yilmaz@alfabe.co</div>
+            </div>
+            <div class="status">✅ Açıldı</div>
           </div>
-          <div class="demo-row">
+          <div class="demo-row" id="demo2">
             <div class="avatar" style="background:#f59e0b;color:#fff;">A</div>
-            <span class="name">Ayşe Demir</span>
-            <span class="status" style="color:#22c55e;">📬 Açıldı ✅</span>
+            <div class="info">
+              <div class="name">Ayşe Demir</div>
+              <div class="mail">ayse.demir@alfabe.co</div>
+            </div>
+            <div class="status">✅ Açıldı</div>
           </div>
-          <div class="demo-row">
+          <div class="demo-row" id="demo3">
             <div class="avatar" style="background:#10b981;color:#fff;">M</div>
-            <span class="name">Mehmet Kaya</span>
-            <span class="status" style="color:#22c55e;">📬 Açıldı ✅</span>
+            <div class="info">
+              <div class="name">Mehmet Kaya</div>
+              <div class="mail">mehmet.kaya@alfabe.co</div>
+            </div>
+            <div class="status">✅ Açıldı</div>
           </div>
           <div style="text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
             <span style="font-size:12px;color:#818cf8;">👆 Panelden dilediğin kadar öğrenci ekleyebilirsin</span>
@@ -145,6 +140,33 @@
       { ad: 'Ayşe', soyad: 'Demir', mail: 'ayse.demir' },
       { ad: 'Mehmet', soyad: 'Kaya', mail: 'mehmet.kaya' },
     ];
+
+    // Demo animation cycle
+    function runDemo() {
+      const rows = [
+        document.getElementById('demo1'),
+        document.getElementById('demo2'),
+        document.getElementById('demo3'),
+      ];
+      rows.forEach(r => { r.classList.remove('highlight', 'done'); });
+      let i = 0;
+      function next() {
+        if (i > 0) rows[i - 1].classList.remove('highlight');
+        if (i < rows.length) {
+          rows[i].classList.add('highlight');
+          setTimeout(() => {
+            rows[i].classList.remove('highlight');
+            rows[i].classList.add('done');
+            i++;
+            setTimeout(next, 400);
+          }, 1200);
+        } else {
+          setTimeout(() => { rows.forEach(r => r.classList.remove('done')); runDemo(); }, 3000);
+        }
+      }
+      next();
+    }
+    runDemo();
 
     function showStep(n) {
       document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
