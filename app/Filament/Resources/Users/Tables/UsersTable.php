@@ -12,7 +12,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Spatie\Permission\Models\Role;
+use Illuminate\Database\Eloquent\Builder;
 
 class UsersTable
 {
@@ -54,7 +54,11 @@ class UsersTable
             ->filters([
                 SelectFilter::make('roles')
                     ->label('Roller')
-                    ->relationship('roles', 'name', fn ($q) => $q->where('name', '!=', 'yonetici'))
+                    ->options(fn () => \Spatie\Permission\Models\Role::where('name', '!=', 'yonetici')->pluck('name', 'id'))
+                    ->query(function (Builder $query, array $data) {
+                        if (empty($data['value'])) return;
+                        $query->whereHas('roles', fn ($q) => $q->whereIn('id', (array) $data['value']));
+                    })
                     ->multiple()
                     ->preload(),
             ])
