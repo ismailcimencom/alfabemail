@@ -63,7 +63,9 @@ class StudentCreationService
             'qr_token' => $qrContent,
             'qr_svg' => (string) $qrSvg,
             'anne_email' => $data['anne_email'] ?? null,
+            'anne_telefon' => $data['anne_telefon'] ?? null,
             'baba_email' => $data['baba_email'] ?? null,
+            'baba_telefon' => $data['baba_telefon'] ?? null,
         ]);
 
         $veliIds = [];

@@ -18,6 +18,13 @@ class SinifForm
         return $schema
             ->columns(12)
             ->components([
+                TextInput::make('id')
+                    ->label('Sınıf ID')
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->columnSpan(12)
+                    ->visible(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\EditRecord),
+
                 TextInput::make('ad')
                     ->label('Sınıf Adı')
                     ->placeholder('Örn: 5-A')
@@ -33,17 +40,6 @@ class SinifForm
                     ->maxLength(255)
                     ->columnSpan(12)
                     ->visible(!$isAdmin),
-
-                Select::make('ogretmenler')
-                    ->label('Öğretmenler')
-                    ->options(function () {
-                        return User::whereHas('roles', fn ($q) => $q->where('name', 'ogretmen'))
-                            ->pluck('name', 'id');
-                    })
-                    ->multiple()
-                    ->searchable()
-                    ->visible($isAdmin)
-                    ->columnSpan(12),
 
                 Select::make('durum')
                     ->label('Durum')
@@ -74,14 +70,25 @@ class SinifForm
                     ->reorderable(false)
                     ->default(function () {
                         $sinifId = request()->route('record');
-                        if (!$sinifId) return [];
-                        $sinif = \App\Models\Sinif::with('ogretmenler')->find($sinifId);
-                        if (!$sinif) return [];
-                        return $sinif->ogretmenler->map(fn ($o) => [
-                            'name' => $o->name,
-                            'email' => $o->email,
-                            'phone' => $o->phone ?? '—',
-                        ])->toArray();
+                        if ($sinifId) {
+                            $sinif = \App\Models\Sinif::with('ogretmenler')->find($sinifId);
+                            if ($sinif && $sinif->ogretmenler->isNotEmpty()) {
+                                return $sinif->ogretmenler->map(fn ($o) => [
+                                    'name' => $o->name,
+                                    'email' => $o->email,
+                                    'phone' => $o->phone ?? '—',
+                                ])->toArray();
+                            }
+                        }
+                        $user = auth()->user();
+                        if ($user) {
+                            return [[
+                                'name' => $user->name,
+                                'email' => $user->email,
+                                'phone' => $user->phone ?? '—',
+                            ]];
+                        }
+                        return [];
                     })
                     ->columnSpan(12),
             ]);

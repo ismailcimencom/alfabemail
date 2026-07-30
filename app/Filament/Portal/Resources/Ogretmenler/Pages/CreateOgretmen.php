@@ -6,6 +6,7 @@ use App\Filament\Portal\Resources\Ogretmenler\OgretmenlerResource;
 use App\Mail\OgretmenSifreMail;
 use App\Models\AktivasyonToken;
 use App\Services\ActivityLogger;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Mail;
@@ -14,6 +15,19 @@ use Illuminate\Support\Str;
 class CreateOgretmen extends CreateRecord
 {
     protected static string $resource = OgretmenlerResource::class;
+
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('create')
+                ->label('Oluştur')
+                ->submit('create'),
+            Action::make('cancel')
+                ->label('İptal')
+                ->url($this->previousUrl ?? static::getUrl())
+                ->color('gray'),
+        ];
+    }
 
     protected function mutateFormData(array $data): array
     {

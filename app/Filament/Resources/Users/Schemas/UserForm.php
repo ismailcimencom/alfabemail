@@ -26,50 +26,74 @@ class UserForm
         $isVeli = fn (callable $get) => $veliRoleId && $get('roles') == $veliRoleId;
 
         return $schema
+            ->columns(2)
             ->components([
 
                 TextInput::make('name')
                     ->label('Ad Soyad')
                     ->required()
                     ->maxLength(255)
-                    ->hidden(fn (callable $get, $livewire) => $isCreate($livewire) && $isOgrenci($get)),
+                    ->hidden(fn (callable $get, $livewire) => $isCreate($livewire) && $isOgrenci($get))
+                    ->columnSpanFull(),
 
                 TextInput::make('first_name')
                     ->label('Ad')
                     ->required(fn (callable $get, $livewire) => $isCreate($livewire) && $isOgrenci($get))
                     ->hidden(fn (callable $get, $livewire) => !$isCreate($livewire) || !$isOgrenci($get))
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpan(1),
 
                 TextInput::make('last_name')
                     ->label('Soyad')
                     ->required(fn (callable $get, $livewire) => $isCreate($livewire) && $isOgrenci($get))
                     ->hidden(fn (callable $get, $livewire) => !$isCreate($livewire) || !$isOgrenci($get))
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpan(1),
 
                 TextInput::make('nickname')
                     ->label('Rumuz (Nickname)')
                     ->suffix('@alfabe.co')
                     ->helperText('Boş bırakılırsa ad.soyad kullanılır')
-                    ->hidden(fn (callable $get, $livewire) => !$isCreate($livewire) || !$isOgrenci($get)),
+                    ->hidden(fn (callable $get, $livewire) => !$isCreate($livewire) || !$isOgrenci($get))
+                    ->columnSpanFull(),
 
                 Select::make('sinif_id')
                     ->label('Sınıf')
-                    ->options(fn () => Sinif::pluck('ad', 'id'))
+                    ->options(fn () => Sinif::get()->mapWithKeys(fn ($s) => [$s->id => $s->ad . ' (' . $s->id . ')']))
                     ->searchable()
                     ->preload()
-                    ->hidden(fn (callable $get) => !$isOgrenci($get)),
+                    ->hidden(fn (callable $get) => !$isOgrenci($get))
+                    ->columnSpanFull(),
 
                 TextInput::make('anne_email')
                     ->label('Anne E-posta')
                     ->email()
                     ->nullable()
-                    ->hidden(fn (callable $get) => !$isOgrenci($get)),
+                    ->hidden(fn (callable $get) => !$isOgrenci($get))
+                    ->columnSpan(1),
 
                 TextInput::make('baba_email')
                     ->label('Baba E-posta')
                     ->email()
                     ->nullable()
-                    ->hidden(fn (callable $get) => !$isOgrenci($get)),
+                    ->hidden(fn (callable $get) => !$isOgrenci($get))
+                    ->columnSpan(1),
+
+                TextInput::make('anne_telefon')
+                    ->label('Anne Telefon')
+                    ->tel()
+                    ->nullable()
+                    ->maxLength(20)
+                    ->hidden(fn (callable $get) => !$isOgrenci($get))
+                    ->columnSpan(1),
+
+                TextInput::make('baba_telefon')
+                    ->label('Baba Telefon')
+                    ->tel()
+                    ->nullable()
+                    ->maxLength(20)
+                    ->hidden(fn (callable $get) => !$isOgrenci($get))
+                    ->columnSpan(1),
 
                 TextInput::make('email')
                     ->label('Email address')
@@ -78,23 +102,36 @@ class UserForm
                     ->disabled(fn ($livewire) => !$isCreate($livewire))
                     ->hidden(fn (callable $get, $livewire) => $isCreate($livewire) && $isOgrenci($get))
                     ->dehydrated(fn ($livewire) => $isCreate($livewire))
-                    ->formatStateUsing(fn ($state) => $state ? substr($state, 0, 5) . '*****' : null),
+                    ->formatStateUsing(fn ($state) => $state ? substr($state, 0, 5) . '*****' : null)
+                    ->columnSpanFull(),
 
                 Select::make('roles')
-                    ->relationship('roles', 'name')
+                    ->options(fn () => Role::where('name', '!=', 'yonetici')->pluck('name', 'id'))
                     ->preload()
                     ->searchable()
-                    ->live(),
+                    ->live()
+                    ->columnSpanFull(),
 
                 TextInput::make('phone')
-                    ->label('Telefon')
+                    ->label(fn (callable $get) => match (true) {
+                        $isOgretmen($get) => 'Öğretmen Telefon',
+                        $isVeli($get) => match ($get('veli_type')) {
+                            'anne' => 'Anne Telefon',
+                            'baba' => 'Baba Telefon',
+                            'diger' => 'Veli Telefon',
+                            default => 'Veli Telefon',
+                        },
+                        default => 'Telefon',
+                    })
                     ->tel()
-                    ->maxLength(20),
+                    ->maxLength(20)
+                    ->hidden(fn (callable $get) => $isOgrenci($get))
+                    ->columnSpanFull(),
 
                 Select::make('sinif_ids')
                     ->label('Sınıflar')
                     ->multiple()
-                    ->options(fn () => Sinif::pluck('ad', 'id'))
+                    ->options(fn () => Sinif::get()->mapWithKeys(fn ($s) => [$s->id => $s->ad . ' (' . $s->id . ')']))
                     ->searchable()
                     ->preload()
                     ->createOptionForm([
@@ -104,7 +141,8 @@ class UserForm
                         return Sinif::create(['ad' => $data['ad']])->id;
                     })
                     ->createOptionModalHeading('Yeni Sınıf Oluştur')
-                    ->hidden(fn (callable $get) => !$isOgretmen($get)),
+                    ->hidden(fn (callable $get) => !$isOgretmen($get))
+                    ->columnSpanFull(),
 
                 Select::make('ogrenci_ids')
                     ->label('Öğrenciler')
@@ -119,12 +157,14 @@ class UserForm
                         TextInput::make('nickname')->label('Rumuz')->suffix('@alfabe.co')
                             ->helperText('Boş bırakılırsa ad.soyad kullanılır'),
                         Select::make('sinif_id')->label('Sınıf')
-                            ->options(fn () => Sinif::pluck('ad', 'id'))
+                            ->options(fn () => Sinif::get()->mapWithKeys(fn ($s) => [$s->id => $s->ad . ' (' . $s->id . ')']))
                             ->searchable(),
                         TextInput::make('password')->label('Şifre')->password()->required()
                             ->default('Ogrenci123!'),
                         TextInput::make('anne_email')->label('Anne E-posta')->email()->nullable(),
+                        TextInput::make('anne_telefon')->label('Anne Telefon')->tel()->nullable()->maxLength(20),
                         TextInput::make('baba_email')->label('Baba E-posta')->email()->nullable(),
+                        TextInput::make('baba_telefon')->label('Baba Telefon')->tel()->nullable()->maxLength(20),
                     ])
                     ->createOptionUsing(function (array $data) {
                         try {
@@ -141,17 +181,39 @@ class UserForm
                         }
                     })
                     ->createOptionModalHeading('Yeni Öğrenci Oluştur')
-                    ->hidden(fn (callable $get) => !$isVeli($get)),
+                    ->hidden(fn (callable $get) => !$isVeli($get))
+                    ->columnSpanFull(),
+
+                Select::make('veli_type')
+                    ->label('Veli Türü')
+                    ->options([
+                        'anne' => 'Anne',
+                        'baba' => 'Baba',
+                        'diger' => 'Diğer',
+                    ])
+                    ->nullable()
+                    ->hidden(fn (callable $get) => !$isVeli($get))
+                    ->columnSpanFull(),
 
                 Toggle::make('is_active')
                     ->label('Aktif')
-                    ->default(true),
+                    ->default(true)
+                    ->columnSpanFull(),
 
                 TextInput::make('password')
-                    ->label('Yeni Şifre (değiştirmek istemezsen boş bırak)')
+                    ->label('Yeni Şifre')
                     ->password()
                     ->dehydrated(fn ($state) => filled($state))
-                    ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord),
+                    ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
+                    ->columnSpan(1),
+
+                TextInput::make('password_confirmation')
+                    ->label('Yeni Şifre Tekrar')
+                    ->password()
+                    ->dehydrated(false)
+                    ->same('password')
+                    ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
+                    ->columnSpan(1),
             ]);
     }
 }

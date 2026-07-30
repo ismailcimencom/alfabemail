@@ -7,6 +7,9 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use App\Filament\Portal\Pages\PortalDashboard;
+use App\Filament\Portal\Pages\VeliMailOzetleriPage;
+use App\Filament\Portal\Pages\VeliMesajPage;
+use App\Filament\Portal\Pages\VeliOgrencilerPage;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -59,11 +62,14 @@ class VeliPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Portal/Pages'), for: 'App\Filament\Portal\Pages')
             ->pages([
                 PortalDashboard::class,
+                VeliOgrencilerPage::class,
+                VeliMesajPage::class,
+                VeliMailOzetleriPage::class,
             ])
             ->widgets([
                 \App\Filament\Portal\Widgets\VeliDashboardWidget::class,
-                \App\Filament\Portal\Widgets\OgrenciAktiviteWidget::class,
                 \App\Filament\Portal\Widgets\HaftalikProgramWidget::class,
+                \App\Filament\Portal\Widgets\OgrenciAktiviteWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

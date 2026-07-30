@@ -34,7 +34,7 @@ class ListUserRoles extends BaseListRecords
                         ->required(),
                     Select::make('role_id')
                         ->label('Rol')
-                        ->options(fn () => Role::pluck('name', 'id'))
+                        ->options(fn () => Role::where('name', '!=', 'yonetici')->pluck('name', 'id'))
                         ->required(),
                 ])
                 ->action(function (array $data) {
@@ -87,7 +87,7 @@ class ListUserRoles extends BaseListRecords
                     ->form([
                         Select::make('role_id')
                             ->label('Yeni Rol')
-                            ->options(fn () => Role::pluck('name', 'id'))
+                            ->options(fn () => Role::where('name', '!=', 'yonetici')->pluck('name', 'id'))
                             ->required(),
                     ])
                     ->fillForm(fn ($record) => [

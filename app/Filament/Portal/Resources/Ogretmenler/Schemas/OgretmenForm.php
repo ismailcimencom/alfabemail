@@ -39,7 +39,10 @@ class OgretmenForm
                 Select::make('sinif_ids')
                     ->label('Sınıflar')
                     ->multiple()
-                    ->options(fn () => Sinif::pluck('ad', 'id'))
+                    ->options(fn () => $isAdmin
+                        ? Sinif::get()->mapWithKeys(fn ($s) => [$s->id => $s->ad . ' (' . $s->id . ')'])
+                        : Sinif::whereHas('ogretmenler', fn ($q) => $q->where('users.id', $user->id))
+                            ->get()->mapWithKeys(fn ($s) => [$s->id => $s->ad . ' (' . $s->id . ')']))
                     ->searchable()
                     ->preload()
                     ->createOptionForm([

@@ -116,7 +116,7 @@ class KayitController extends Controller
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:ogretmen,veli',
             'school' => 'nullable|string|max:255',
-            'veli_type' => 'nullable|string|in:anne,baba',
+            'veli_type' => 'nullable|string|in:anne,baba,diger',
             'child_email' => 'nullable|email|max:255',
         ]);
 

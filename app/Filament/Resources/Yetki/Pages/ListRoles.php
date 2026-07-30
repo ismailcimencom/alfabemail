@@ -25,7 +25,7 @@ class ListRoles extends BaseListRecords
     public function table(Table $table): Table
     {
         return $table
-            ->query(Role::query())
+            ->query(Role::where('name', '!=', 'yonetici'))
             ->columns([
                 TextColumn::make('name')
                     ->label('Rol Adı')

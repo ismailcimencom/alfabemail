@@ -22,7 +22,9 @@ class Ogrenci extends Model
         'qr_token',
         'qr_svg',
         'anne_email',
+        'anne_telefon',
         'baba_email',
+        'baba_telefon',
         'veli_email',
     ];
 
@@ -82,5 +84,10 @@ class Ogrenci extends Model
     public function bekleyenTakvimEtkinlikleri(): HasMany
     {
         return $this->hasMany(BekleyenTakvimEtkinligi::class, 'ogrenci_id');
+    }
+
+    public function mailAktiviteLoglari(): HasMany
+    {
+        return $this->hasMany(MailAktiviteLog::class, 'ogrenci_id');
     }
 }

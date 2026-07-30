@@ -6,7 +6,6 @@ use App\Models\Sinif;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Ogrenci;
-use App\Models\MailAktiviteLog;
 use Illuminate\Support\Facades\Auth;
 
 class OgrenciIstatistikKartlariWidget extends StatsOverviewWidget
@@ -32,17 +31,16 @@ class OgrenciIstatistikKartlariWidget extends StatsOverviewWidget
 
         $toplamOgrenci = (clone $baseQuery)->count();
         $aktifOgrenci = (clone $baseQuery)->whereHas('user', fn($q) => $q->where('is_active', true))->count();
-        $pasifOgrenci = $toplamOgrenci - $aktifOgrenci;
-
-        $ogrenciIds = (clone $baseQuery)->pluck('id');
-        $gonderilen = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)
-            ->where('tip', 'gonderilen')
-            ->count();
-        $alinan = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)
-            ->where('tip', 'alinan')
+        $pasifOgrenci = (clone $baseQuery)
+            ->whereNotNull('mailbox_local_part')
+            ->whereDoesntHave('mailAktiviteLoglari')
             ->count();
 
         return [
+            Stat::make('Sınıflarım', $sinifSayisi)
+                ->description('Sorumlu olduğunuz')
+                ->icon('heroicon-o-rectangle-stack')
+                ->color('primary'),
             Stat::make('Toplam Öğrenci', $toplamOgrenci)
                 ->description('Sisteme kayıtlı')
                 ->icon('heroicon-o-users'),
@@ -50,21 +48,9 @@ class OgrenciIstatistikKartlariWidget extends StatsOverviewWidget
                 ->description('Giriş yapabilen')
                 ->icon('heroicon-o-check-circle'),
             Stat::make('Pasif Öğrenci', $pasifOgrenci)
-                ->description('Giriş yapamayan')
+                ->description('Hiç giriş yapmadı')
                 ->icon('heroicon-o-minus-circle')
                 ->color('danger'),
-            Stat::make('Sınıflarım', $sinifSayisi)
-                ->description('Sorumlu olduğunuz sınıflar')
-                ->icon('heroicon-o-rectangle-stack')
-                ->color('primary'),
-            Stat::make('Gönderilen', $gonderilen)
-                ->description('Öğrencilerden gönderilen')
-                ->icon('heroicon-o-paper-airplane')
-                ->color('success'),
-            Stat::make('Alınan', $alinan)
-                ->description('Öğrencilere gelen')
-                ->icon('heroicon-o-inbox')
-                ->color('info'),
         ];
     }
 

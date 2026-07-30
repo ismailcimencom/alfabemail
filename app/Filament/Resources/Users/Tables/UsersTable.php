@@ -54,7 +54,7 @@ class UsersTable
             ->filters([
                 SelectFilter::make('roles')
                     ->label('Roller')
-                    ->options(fn () => \Spatie\Permission\Models\Role::where('name', '!=', 'yonetici')->pluck('name', 'id'))
+                    ->options(fn () => \Spatie\Permission\Models\Role::pluck('name', 'id'))
                     ->query(function (Builder $query, array $data) {
                         if (empty($data['value'])) return;
                         $query->whereHas('roles', fn ($q) => $q->whereIn('id', (array) $data['value']));

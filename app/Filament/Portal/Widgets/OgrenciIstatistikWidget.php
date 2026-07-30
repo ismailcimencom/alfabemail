@@ -13,7 +13,7 @@ class OgrenciIstatistikWidget extends ChartWidget
 
     protected int | string | array $columnSpan = 'full';
 
-    protected ?string $heading = 'Tüm Zamanlar Mail İstatistikleri';
+    protected ?string $heading = 'Aylık Mail İstatistikleri';
 
     public static function canView(): bool
     {
@@ -31,28 +31,52 @@ class OgrenciIstatistikWidget extends ChartWidget
             )->pluck('id')
             : Ogrenci::pluck('id');
 
-        $gonderilen = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)->where('tip', 'gonderilen')->count();
-        $alinan = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)->where('tip', 'alinan')->count();
+        $labels = [];
+        $gonderilenData = [];
+        $alinanData = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $labels[] = $month->translatedFormat('M Y');
+            $start = $month->copy()->startOfMonth();
+            $end = $month->copy()->endOfMonth();
+
+            $gonderilenData[] = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)
+                ->where('tip', 'gonderilen')
+                ->whereBetween('tarih', [$start, $end])
+                ->count();
+
+            $alinanData[] = MailAktiviteLog::whereIn('ogrenci_id', $ogrenciIds)
+                ->where('tip', 'alinan')
+                ->whereBetween('tarih', [$start, $end])
+                ->count();
+        }
 
         return [
             'datasets' => [
                 [
                     'label' => 'Gönderilen',
-                    'data' => [$gonderilen],
-                    'backgroundColor' => '#7fa7ff',
+                    'data' => $gonderilenData,
+                    'borderColor' => '#3b82f6',
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
+                    'fill' => true,
+                    'tension' => 0.3,
                 ],
                 [
                     'label' => 'Alınan',
-                    'data' => [$alinan],
-                    'backgroundColor' => '#c4ffe7',
+                    'data' => $alinanData,
+                    'borderColor' => '#10b981',
+                    'backgroundColor' => 'rgba(16, 185, 129, 0.1)',
+                    'fill' => true,
+                    'tension' => 0.3,
                 ],
             ],
-            'labels' => ['Tüm Zamanlar'],
+            'labels' => $labels,
         ];
     }
 
     protected function getType(): string
     {
-        return 'bar';
+        return 'line';
     }
 }

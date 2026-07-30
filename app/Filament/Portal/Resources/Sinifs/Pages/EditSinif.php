@@ -94,7 +94,7 @@ class EditSinif extends EditRecord
                 ->label('Öğretmen Çıkar')
                 ->icon('heroicon-o-user-minus')
                 ->color('danger')
-                ->visible($isAdmin)
+                ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'ogretmen']) ?? false)
                 ->form([
                     Select::make('ogretmen_id')
                         ->label('Öğretmen')

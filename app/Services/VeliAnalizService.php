@@ -13,7 +13,6 @@ class VeliAnalizService
     public function analyze(Ogrenci $ogrenci): array
     {
         $logs = MailAktiviteLog::where('ogrenci_id', $ogrenci->id)
-            ->where('tarih', '>=', Carbon::now()->subDays(30))
             ->get();
 
         $weeklyRaw = $this->weeklyBreakdown($logs, $ogrenci);
@@ -55,16 +54,28 @@ class VeliAnalizService
 
     private function generateInsights(Collection $logs, Ogrenci $ogrenci): array
     {
-        $topContacts = $logs->groupBy('kime')->sortDesc()->take(3);
         $incomingCount = $logs->where('tip', 'alinan')->count();
         $outgoingCount = $logs->where('tip', 'gonderilen')->count();
+
+        $allContacts = collect();
+        foreach ($logs as $log) {
+            if ($log->tip === 'gonderilen' && $log->kime) {
+                $allContacts->push($log->kime);
+            } elseif ($log->tip === 'alinan' && $log->kimden) {
+                $allContacts->push($log->kimden);
+            }
+        }
+
+        $topContacts = $allContacts->countBy()->sortDesc()->take(3);
+
         $busiestDay = $logs->groupBy(fn ($l) => Carbon::parse($l->tarih)->locale('tr')->dayName)
+            ->map->count()
             ->sortDesc()
             ->keys()
             ->first();
 
         $hourly = $logs->groupBy(fn ($l) => Carbon::parse($l->tarih)->format('H'));
-        $busiestHour = $hourly->sortDesc()->keys()->first();
+        $busiestHour = $hourly->map->count()->sortDesc()->keys()->first();
 
         return [
             'total_emails' => $logs->count(),
@@ -73,7 +84,7 @@ class VeliAnalizService
             'top_contacts' => $topContacts->keys()->take(3)->toArray(),
             'busiest_day' => $busiestDay,
             'busiest_hour' => $busiestHour ? $busiestHour . ':00' : null,
-            'unique_contacts' => $logs->pluck('kime')->unique()->count(),
+            'unique_contacts' => $allContacts->unique()->count(),
             'hourly_distribution' => $hourly->map(fn ($g) => $g->count())->toArray(),
         ];
     }
@@ -82,11 +93,11 @@ class VeliAnalizService
     {
         $total = $insights['total_emails'];
         if ($total === 0) {
-            return 'Son 30 günde henüz mail aktivitesi bulunmuyor.';
+            return 'Henüz mail aktivitesi bulunmuyor.';
         }
 
         $parts = [];
-        $parts[] = "Son 30 günde {$total} e-posta aktivitesi tespit edildi.";
+        $parts[] = "Toplam {$total} e-posta aktivitesi tespit edildi.";
         $parts[] = "Gönderilen: {$insights['outgoing']}, Alınan: {$insights['incoming']}.";
 
         if ($insights['busiest_day']) {

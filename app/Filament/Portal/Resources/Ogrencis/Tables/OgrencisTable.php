@@ -29,6 +29,7 @@ class OgrencisTable
             ->columns([
                 TextColumn::make('user.name')
                     ->label('Ad Soyad')
+                    ->formatStateUsing(fn ($record) => $record->user?->name . ' (' . $record->id . ')')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('mailbox_local_part')
@@ -37,6 +38,7 @@ class OgrencisTable
                     ->searchable(),
                 TextColumn::make('sinif.ad')
                     ->label('Sınıf')
+                    ->formatStateUsing(fn ($record) => $record->sinif?->ad . ' (' . $record->sinif?->id . ')')
                     ->sortable(),
                 TextColumn::make('sifre')
                     ->label('Şifre')

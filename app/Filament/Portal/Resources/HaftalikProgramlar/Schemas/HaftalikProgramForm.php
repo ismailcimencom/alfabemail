@@ -46,7 +46,7 @@ class HaftalikProgramForm
                 Select::make('sinif_id')
                     ->label('Sınıf')
                     ->options(function () {
-                        return \App\Models\Sinif::pluck('ad', 'id');
+                        return \App\Models\Sinif::get()->mapWithKeys(fn ($s) => [$s->id => $s->ad . ' (' . $s->id . ')']);
                     })
                     ->required()
                     ->columnSpan(6),

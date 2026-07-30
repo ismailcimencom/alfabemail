@@ -6,7 +6,7 @@ use Filament\Pages\Dashboard;
 
 class PortalDashboard extends Dashboard
 {
-    protected static ?string $navigationLabel = 'Portal';
+    protected static ?string $navigationLabel = 'Genel Bakış';
 
     public static function canAccess(): bool
     {

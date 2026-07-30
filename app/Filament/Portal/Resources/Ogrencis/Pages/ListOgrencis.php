@@ -50,9 +50,9 @@ class ListOgrencis extends ListRecords
                             $user = auth()->user();
                             if ($user?->hasRole('ogretmen')) {
                                 return Sinif::whereHas('ogretmenler', fn($q) => $q->where('users.id', $user->id))
-                                    ->pluck('ad', 'id');
+                                    ->get()->mapWithKeys(fn ($s) => [$s->id => $s->ad . ' (' . $s->id . ')']);
                             }
-                            return Sinif::pluck('ad', 'id');
+                            return Sinif::get()->mapWithKeys(fn ($s) => [$s->id => $s->ad . ' (' . $s->id . ')']);
                         })
                         ->searchable()
                         ->required(),
@@ -106,9 +106,9 @@ class ListOgrencis extends ListRecords
                             $user = auth()->user();
                             if ($user?->hasRole('ogretmen')) {
                                 return Sinif::whereHas('ogretmenler', fn($q) => $q->where('users.id', $user->id))
-                                    ->pluck('ad', 'id');
+                                    ->get()->mapWithKeys(fn ($s) => [$s->id => $s->ad . ' (' . $s->id . ')']);
                             }
-                            return Sinif::pluck('ad', 'id');
+                            return Sinif::get()->mapWithKeys(fn ($s) => [$s->id => $s->ad . ' (' . $s->id . ')']);
                         })
                         ->searchable()
                         ->required(),

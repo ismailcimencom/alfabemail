@@ -16,6 +16,7 @@ class SinifsTable
             ->columns([
                 TextColumn::make('ad')
                     ->label('Sınıf Adı')
+                    ->formatStateUsing(fn ($record) => $record->ad . ' (' . $record->id . ')')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('durum')

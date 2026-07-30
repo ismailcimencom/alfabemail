@@ -32,13 +32,15 @@ class CreateUser extends CreateRecord
                 'nickname' => $data['nickname'] ?? null,
                 'sinif_id' => $data['sinif_id'] ?? null,
                 'anne_email' => $data['anne_email'] ?? null,
+                'anne_telefon' => $data['anne_telefon'] ?? null,
                 'baba_email' => $data['baba_email'] ?? null,
+                'baba_telefon' => $data['baba_telefon'] ?? null,
             ];
 
             $data['name'] = trim($this->ogrenciData['first_name'] . ' ' . $this->ogrenciData['last_name']);
             $data['email'] = null;
 
-            unset($data['first_name'], $data['last_name'], $data['nickname'], $data['sinif_id'], $data['anne_email'], $data['baba_email']);
+            unset($data['first_name'], $data['last_name'], $data['nickname'], $data['sinif_id'], $data['anne_email'], $data['anne_telefon'], $data['baba_email'], $data['baba_telefon']);
         }
 
         $ogretmenRoleId = Role::where('name', 'ogretmen')->value('id');
@@ -53,8 +55,9 @@ class CreateUser extends CreateRecord
         if ($veliRoleId && ($data['roles'] ?? null) == $veliRoleId) {
             $this->veliData = [
                 'ogrenci_ids' => $data['ogrenci_ids'] ?? [],
+                'veli_type' => $data['veli_type'] ?? null,
             ];
-            unset($data['ogrenci_ids']);
+            unset($data['ogrenci_ids'], $data['veli_type']);
         }
 
         return $data;
@@ -74,7 +77,9 @@ class CreateUser extends CreateRecord
                 'sinif_id' => $this->ogrenciData['sinif_id'],
                 'password' => $data['password'],
                 'anne_email' => $this->ogrenciData['anne_email'],
+                'anne_telefon' => $this->ogrenciData['anne_telefon'],
                 'baba_email' => $this->ogrenciData['baba_email'],
+                'baba_telefon' => $this->ogrenciData['baba_telefon'],
             ]);
 
             $user = $ogrenci->user;
@@ -107,8 +112,12 @@ class CreateUser extends CreateRecord
         }
 
         if ($this->veliData !== null) {
+            $veli = Veli::firstOrCreate(['user_id' => $this->record->id]);
+            if (!empty($this->veliData['veli_type'])) {
+                $veli->veli_type = $this->veliData['veli_type'];
+                $veli->save();
+            }
             if (!empty($this->veliData['ogrenci_ids'])) {
-                $veli = Veli::firstOrCreate(['user_id' => $this->record->id]);
                 $veli->ogrenciler()->sync($this->veliData['ogrenci_ids']);
             }
         }

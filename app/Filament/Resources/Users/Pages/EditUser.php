@@ -14,6 +14,7 @@ class EditUser extends EditRecord
 
     private array $ogretmenSinifIds = [];
     private array $veliOgrenciIds = [];
+    private ?string $veli_type = null;
     private array $ogrenciFields = [];
 
     protected function getHeaderActions(): array
@@ -29,12 +30,15 @@ class EditUser extends EditRecord
         if ($ogrenci) {
             $data['sinif_id'] = $ogrenci->sinif_id;
             $data['anne_email'] = $ogrenci->anne_email;
+            $data['anne_telefon'] = $ogrenci->anne_telefon;
             $data['baba_email'] = $ogrenci->baba_email;
+            $data['baba_telefon'] = $ogrenci->baba_telefon;
             $data['ogrenci_okul_id'] = $ogrenci->sinif?->okul_id;
         }
 
         $data['sinif_ids'] = $this->record->ogretmen_sinifler_pivot->pluck('id')->toArray();
         $data['ogrenci_ids'] = $this->record->veli?->ogrenciler->pluck('id')->toArray() ?? [];
+        $data['veli_type'] = $this->record->veli?->veli_type;
 
         return $data;
     }
@@ -43,12 +47,15 @@ class EditUser extends EditRecord
     {
         $this->ogretmenSinifIds = $data['sinif_ids'] ?? [];
         $this->veliOgrenciIds = $data['ogrenci_ids'] ?? [];
+        $this->veli_type = $data['veli_type'] ?? null;
         $this->ogrenciFields = [
             'sinif_id' => $data['sinif_id'] ?? null,
             'anne_email' => $data['anne_email'] ?? null,
+            'anne_telefon' => $data['anne_telefon'] ?? null,
             'baba_email' => $data['baba_email'] ?? null,
+            'baba_telefon' => $data['baba_telefon'] ?? null,
         ];
-        unset($data['sinif_ids'], $data['ogrenci_ids'], $data['sinif_id'], $data['anne_email'], $data['baba_email'], $data['ogrenci_okul_id']);
+        unset($data['sinif_ids'], $data['ogrenci_ids'], $data['veli_type'], $data['sinif_id'], $data['anne_email'], $data['anne_telefon'], $data['baba_email'], $data['baba_telefon'], $data['ogrenci_okul_id']);
         return $data;
     }
 
@@ -60,6 +67,10 @@ class EditUser extends EditRecord
 
         if ($this->record->hasRole('veli')) {
             $veli = Veli::firstOrCreate(['user_id' => $this->record->id]);
+            if ($this->veli_type) {
+                $veli->veli_type = $this->veli_type;
+                $veli->save();
+            }
             $veli->ogrenciler()->sync($this->veliOgrenciIds);
         }
 

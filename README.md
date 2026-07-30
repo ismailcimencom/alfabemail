@@ -1,6 +1,6 @@
 # Alfabe Mail — Çocuklar için Güvenli E-posta Sistemi
 
-> **v1.8** — Kapsül Serix Teknoloji Platformu
+> **v1.9** — Kapsül Serix Teknoloji Platformu
 
 Çocukların güvenli, reklamsız, kötü söz içermeyen ve kontrollü bir ortamda e-posta kullanmasını sağlayan eğitim odaklı mail platformu.
 
@@ -64,6 +64,7 @@
 - [x] Çoklu Öğrenci Karşılaştırma
 - [x] Öğrenci e-posta istatistik grafikleri (Chart.js)
 - [x] Dashboard widget'ları (istatistik kartları, aktivite grafiği)
+- [x] Mail Özetleri sayfası (çocuk maillerinin 140 karakterlik özet listesi)
 
 ### Admin Paneli
 - [x] Kullanıcı yönetimi (CRUD, rol atama, telefon alanı)
@@ -362,6 +363,14 @@ $schedule->command('quota:check-notify')->dailyAt('09:00');
 ---
 
 ## 📋 Değişiklik Geçmişi
+
+### v1.9 — 2026-07-30
+- **Veli paneli yenilendi**: "Haftalık Mail" → "Toplam Mail", "En Çok İletişim" kutusu kaldırıldı
+- **Mail Özetleri sayfası** (`/veli/mail-ozetleri`) eklendi: çocuklara ait gelen/giden maillerin 140 karakterlik özeti, sayfalamalı tablo
+- **OgrenciAktiviteWidget** gerçek veriyle çalışır hale getirildi (son 6 ay aylık mail grafiği)
+- **VeliAnalizService** düzeltildi: 30 gün filtresi kaldırıldı, çift yönlü kontak hesaplama, frekans bazlı sıralama
+- **VeliIstatistikPage** kaldırıldı (özellikleri dashboard ve Mail Özetleri'ne taşındı)
+- **Dashboard sıralaması**: Toplam Mail → Kayıtlı Öğrenci → Haftalık Program → Toplam Mail Grafiği
 
 ### v1.8 — 2026-07-29
 - **Yönetici rolü kaldırıldı**, özellikleri öğretmen paneline taşındı
