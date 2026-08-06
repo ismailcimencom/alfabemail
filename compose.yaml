@@ -27,6 +27,29 @@ services:
         depends_on:
             - mysql
             - redis
+    worker:
+        container_name: alfabemail-worker
+        image: 'alfabemail-app'
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        command: ['php', 'artisan', 'queue:work', 'redis', '--sleep=3', '--tries=3', '--timeout=60']
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            TMPDIR: '/var/www/html/storage/app'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+            - mailcow-network
+            - alfabe_net
+        depends_on:
+            - mysql
+            - redis
     mysql:
         image: 'mysql:8.4'
         ports:

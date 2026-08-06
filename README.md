@@ -209,6 +209,7 @@ alfabe.co ──► Cloudflare (Full strict SSL)
 |--------|-----------|-----|
 | **Proxy (nginx)** | alfabe-proxy | `alfabe_net` |
 | **Alfabe Mail** | alfabemail | `sail`, `alfabe_net` |
+| **Queue Worker** | alfabemail-worker | `sail`, `alfabe_net` |
 | **Veritabanı** | mysql | `sail` |
 | **Redis** | redis | `sail` |
 
@@ -257,6 +258,24 @@ docker compose exec laravel.test php artisan tinker
 
 # Container içine gir
 docker compose exec laravel.test bash
+```
+
+### Queue Worker
+Asenkron görevler (e-posta gönderimi, Mailcow senkronizasyonu, kota bildirimleri) Redis kuyruğundan
+`alfabemail-worker` servisi (container `alfabemail-worker`) tarafından işlenir.
+`compose.yaml` içindeki `worker` servisi; `restart: unless-stopped` ile container yeniden başlasa bile
+otomatik ayağa kalkar ve tek örnek (`--tries=3 --timeout=60 --sleep=3`) çalışır.
+
+```bash
+# Worker'ı tek başına başlat / yeniden başlat
+docker compose up -d worker
+docker compose restart worker
+
+# Worker logları
+docker compose logs -f worker
+
+# Sıklıkla (manuel çalıştırılmış worker) varsa çift işleme olmaması için durdur
+docker exec alfabemail-worker kill $(pidof php)
 ```
 
 ---
