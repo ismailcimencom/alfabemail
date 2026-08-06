@@ -274,8 +274,9 @@ docker compose restart worker
 # Worker logları
 docker compose logs -f worker
 
-# Sıklıkla (manuel çalıştırılmış worker) varsa çift işleme olmaması için durdur
-docker exec alfabemail-worker kill $(pidof php)
+# NOT: `docker exec ... kill $(pidof php)` gibi komutlar app container'daki
+# web sunucusunu (artisan serve) da öldürebilir. Worker yeniden başlatmak
+# için her zaman yukarıdaki `docker compose restart worker` kullanılmalıdır.
 ```
 
 ---
